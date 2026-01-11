@@ -25,16 +25,16 @@ const stylists = [
 ];
 
 const menServices = [
-  { id: "men-cut", name: "Haircut", price: 35, duration: 30 },
-  { id: "men-cut-beard", name: "Haircut + Beard", price: 50, duration: 45 },
-  { id: "men-beard", name: "Beard Grooming", price: 25, duration: 20 },
+  { id: "men-cut", name: "Haarschnitt", price: 35, duration: 30 },
+  { id: "men-cut-beard", name: "Haarschnitt + Bart", price: 50, duration: 45 },
+  { id: "men-beard", name: "Bartpflege", price: 25, duration: 20 },
 ];
 
 const womenServices = [
-  { id: "women-cut", name: "Haircut", price: 45, duration: 45 },
-  { id: "women-cut-style", name: "Haircut + Styling", price: 65, duration: 60 },
+  { id: "women-cut", name: "Haarschnitt", price: 45, duration: 45 },
+  { id: "women-cut-style", name: "Haarschnitt + Styling", price: 65, duration: 60 },
   { id: "women-waves", name: "Waves & Styling", price: 40, duration: 45 },
-  { id: "women-color", name: "Color Treatment", price: 80, duration: 90 },
+  { id: "women-color", name: "Färbung", price: 80, duration: 90 },
 ];
 
 // Mock available time slots
@@ -89,7 +89,15 @@ const Booking = () => {
   }).filter(date => date.getDay() !== 0); // Exclude Sundays
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+  };
+
+  const getDayName = (date: Date) => {
+    return date.toLocaleDateString('de-DE', { weekday: 'short' });
+  };
+
+  const getMonthName = (date: Date) => {
+    return date.toLocaleDateString('de-DE', { month: 'short' });
   };
 
   return (
@@ -100,13 +108,13 @@ const Booking = () => {
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center max-w-3xl mx-auto">
             <span className="text-primary text-sm font-medium tracking-wider uppercase mb-4 block">
-              Book Your Visit
+              Termin vereinbaren
             </span>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Schedule an <span className="text-gold-gradient">Appointment</span>
+              Buchen Sie Ihren <span className="text-gold-gradient">Termin</span>
             </h1>
             <p className="text-muted-foreground">
-              Choose your service, stylist, and preferred time
+              Wählen Sie Ihre Leistung, Ihren Stylisten und Ihre bevorzugte Zeit
             </p>
           </AnimatedSection>
         </div>
@@ -163,13 +171,13 @@ const Booking = () => {
                 >
                   <div className="text-center mb-8">
                     <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
-                      I'm looking for services for...
+                      Ich suche Services für...
                     </h2>
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     {[
-                      { value: "men", icon: User, label: "Men" },
-                      { value: "women", icon: Users, label: "Women" },
+                      { value: "men", icon: User, label: "Herren" },
+                      { value: "women", icon: Users, label: "Damen" },
                     ].map((option) => (
                       <motion.button
                         key={option.value}
@@ -210,10 +218,10 @@ const Booking = () => {
                   <div className="flex items-center justify-between mb-8">
                     <Button variant="ghost" onClick={prevStep}>
                       <ChevronLeft className="w-4 h-4 mr-2" />
-                      Back
+                      Zurück
                     </Button>
                     <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Select a Service
+                      Leistung wählen
                     </h2>
                     <div className="w-20" />
                   </div>
@@ -235,7 +243,7 @@ const Booking = () => {
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-                            {service.id.includes('beard') ? (
+                            {service.id.includes('beard') || service.id.includes('bart') ? (
                               <Scissors className="w-6 h-6 text-primary" />
                             ) : service.id.includes('waves') || service.id.includes('style') ? (
                               <Sparkles className="w-6 h-6 text-primary" />
@@ -248,13 +256,13 @@ const Booking = () => {
                               {service.name}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              {service.duration} min
+                              {service.duration} Min.
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="text-primary font-semibold text-lg">
-                            €{service.price}
+                            {service.price}€
                           </span>
                           <ChevronRight className="w-5 h-5 text-muted-foreground" />
                         </div>
@@ -276,10 +284,10 @@ const Booking = () => {
                   <div className="flex items-center justify-between mb-8">
                     <Button variant="ghost" onClick={prevStep}>
                       <ChevronLeft className="w-4 h-4 mr-2" />
-                      Back
+                      Zurück
                     </Button>
                     <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Choose Your Stylist
+                      Stylisten wählen
                     </h2>
                     <div className="w-20" />
                   </div>
@@ -325,10 +333,10 @@ const Booking = () => {
                   <div className="flex items-center justify-between mb-8">
                     <Button variant="ghost" onClick={prevStep}>
                       <ChevronLeft className="w-4 h-4 mr-2" />
-                      Back
+                      Zurück
                     </Button>
                     <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Select Date & Time
+                      Datum & Uhrzeit wählen
                     </h2>
                     <div className="w-20" />
                   </div>
@@ -337,7 +345,7 @@ const Booking = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-4">
                       <Calendar className="w-5 h-5 text-primary" />
-                      <span className="font-medium text-foreground">Select a Date</span>
+                      <span className="font-medium text-foreground">Datum auswählen</span>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-4">
                       {dates.map((date) => (
@@ -353,13 +361,13 @@ const Booking = () => {
                           }`}
                         >
                           <span className="text-xs text-muted-foreground block">
-                            {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                            {getDayName(date)}
                           </span>
                           <span className="text-xl font-semibold text-foreground block">
                             {date.getDate()}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {date.toLocaleDateString('en-US', { month: 'short' })}
+                            {getMonthName(date)}
                           </span>
                         </motion.button>
                       ))}
@@ -374,7 +382,7 @@ const Booking = () => {
                     >
                       <div className="flex items-center gap-2 mb-4">
                         <Clock className="w-5 h-5 text-primary" />
-                        <span className="font-medium text-foreground">Available Times</span>
+                        <span className="font-medium text-foreground">Verfügbare Zeiten</span>
                       </div>
                       <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                         {timeSlots.map((time) => (
@@ -408,7 +416,7 @@ const Booking = () => {
                         className="w-full"
                         onClick={nextStep}
                       >
-                        Continue
+                        Weiter
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
                     </motion.div>
@@ -428,20 +436,20 @@ const Booking = () => {
                   <div className="flex items-center justify-between mb-8">
                     <Button variant="ghost" onClick={prevStep}>
                       <ChevronLeft className="w-4 h-4 mr-2" />
-                      Back
+                      Zurück
                     </Button>
                     <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Your Details
+                      Ihre Daten
                     </h2>
                     <div className="w-20" />
                   </div>
 
                   {/* Booking Summary */}
                   <div className="p-6 rounded-xl bg-card border border-border">
-                    <h3 className="font-semibold text-foreground mb-4">Booking Summary</h3>
+                    <h3 className="font-semibold text-foreground mb-4">Buchungsübersicht</h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Service</span>
+                        <span className="text-muted-foreground">Leistung</span>
                         <span className="text-foreground">{currentService?.name}</span>
                       </div>
                       <div className="flex justify-between">
@@ -449,44 +457,44 @@ const Booking = () => {
                         <span className="text-foreground">{currentStylist?.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Date & Time</span>
+                        <span className="text-muted-foreground">Datum & Uhrzeit</span>
                         <span className="text-foreground">
-                          {selectedDate && formatDate(selectedDate)} at {selectedTime}
+                          {selectedDate && formatDate(selectedDate)} um {selectedTime} Uhr
                         </span>
                       </div>
                       <div className="flex justify-between pt-3 border-t border-border">
-                        <span className="font-semibold text-foreground">Total</span>
-                        <span className="font-semibold text-primary">€{currentService?.price}</span>
+                        <span className="font-semibold text-foreground">Gesamt</span>
+                        <span className="font-semibold text-primary">{currentService?.price}€</span>
                       </div>
                     </div>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="name">Vollständiger Name</Label>
                       <Input
                         id="name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="John Doe"
+                        placeholder="Max Mustermann"
                         required
                         className="bg-card border-border focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
+                      <Label htmlFor="email">E-Mail-Adresse</Label>
                       <Input
                         id="email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="john@example.com"
+                        placeholder="max@beispiel.de"
                         required
                         className="bg-card border-border focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">Telefonnummer</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -503,7 +511,7 @@ const Booking = () => {
                       size="lg"
                       className="w-full"
                     >
-                      Confirm Booking
+                      Termin bestätigen
                     </Button>
                   </form>
                 </motion.div>
@@ -526,16 +534,16 @@ const Booking = () => {
                     <Check className="w-10 h-10 text-primary" />
                   </motion.div>
                   <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
-                    Booking <span className="text-gold-gradient">Confirmed!</span>
+                    Buchung <span className="text-gold-gradient">bestätigt!</span>
                   </h2>
                   <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                    Thank you, {formData.name}! A confirmation email has been sent to {formData.email}. 
-                    We look forward to seeing you!
+                    Vielen Dank, {formData.name}! Eine Bestätigungs-E-Mail wurde an {formData.email} gesendet. 
+                    Wir freuen uns auf Ihren Besuch!
                   </p>
                   <div className="p-6 rounded-xl bg-card border border-border inline-block text-left mb-8">
                     <div className="space-y-3 text-sm">
                       <div className="flex gap-8">
-                        <span className="text-muted-foreground">Service</span>
+                        <span className="text-muted-foreground">Leistung</span>
                         <span className="text-foreground font-medium">{currentService?.name}</span>
                       </div>
                       <div className="flex gap-8">
@@ -543,9 +551,9 @@ const Booking = () => {
                         <span className="text-foreground font-medium">{currentStylist?.name}</span>
                       </div>
                       <div className="flex gap-8">
-                        <span className="text-muted-foreground">Date</span>
+                        <span className="text-muted-foreground">Datum</span>
                         <span className="text-foreground font-medium">
-                          {selectedDate && formatDate(selectedDate)} at {selectedTime}
+                          {selectedDate && formatDate(selectedDate)} um {selectedTime} Uhr
                         </span>
                       </div>
                     </div>
@@ -563,7 +571,7 @@ const Booking = () => {
                         setFormData({ name: "", email: "", phone: "" });
                       }}
                     >
-                      Book Another Appointment
+                      Weiteren Termin buchen
                     </Button>
                   </div>
                 </motion.div>

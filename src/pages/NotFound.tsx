@@ -8,7 +8,7 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    console.error("404 Fehler: Benutzer versuchte auf nicht existierende Route zuzugreifen:", location.pathname);
   }, [location.pathname]);
 
   return (
@@ -28,13 +28,13 @@ const NotFound = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-md mx-auto">
-            Oops! This page seems to have gotten a trim it didn't need.
+            Ups! Diese Seite scheint einen ungewollten Schnitt bekommen zu haben.
           </p>
           
           <Button asChild variant="gold" size="lg">
             <Link to="/">
               <Home className="w-4 h-4 mr-2" />
-              Back to Home
+              Zur Startseite
             </Link>
           </Button>
         </motion.div>

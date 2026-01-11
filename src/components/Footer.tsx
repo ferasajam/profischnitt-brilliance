@@ -26,7 +26,7 @@ export const Footer = () => {
               </div>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Premium hairstyling for men and women. Where artistry meets precision.
+              Premium Hairstyling für Damen und Herren. Wo Handwerkskunst auf Präzision trifft.
             </p>
             {/* Social Links */}
             <div className="flex gap-4 pt-2">
@@ -55,12 +55,12 @@ export const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Quick Links</h4>
+            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Schnellzugriff</h4>
             <ul className="space-y-3">
               {[
-                { href: "/", label: "Home" },
-                { href: "/team", label: "Our Team" },
-                { href: "/booking", label: "Book Appointment" },
+                { href: "/", label: "Startseite" },
+                { href: "/team", label: "Unser Team" },
+                { href: "/booking", label: "Termin buchen" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -76,7 +76,7 @@ export const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Contact</h4>
+            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Kontakt</h4>
             <ul className="space-y-3">
               <li>
                 <a
@@ -101,7 +101,7 @@ export const Footer = () => {
                   <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>
                     Zum Erlenbusch 13<br />
-                    48167 Münster, Germany
+                    48167 Münster, Deutschland
                   </span>
                 </div>
               </li>
@@ -110,19 +110,19 @@ export const Footer = () => {
 
           {/* Opening Hours */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Opening Hours</h4>
+            <h4 className="font-serif text-lg font-semibold mb-4 text-foreground">Öffnungszeiten</h4>
             <ul className="space-y-2 text-sm">
               <li className="flex justify-between text-muted-foreground">
-                <span>Monday - Friday</span>
+                <span>Montag - Freitag</span>
                 <span className="text-foreground">09:00 - 19:00</span>
               </li>
               <li className="flex justify-between text-muted-foreground">
-                <span>Saturday</span>
+                <span>Samstag</span>
                 <span className="text-foreground">09:00 - 17:00</span>
               </li>
               <li className="flex justify-between text-muted-foreground">
-                <span>Sunday</span>
-                <span className="text-foreground">Closed</span>
+                <span>Sonntag</span>
+                <span className="text-foreground">Geschlossen</span>
               </li>
             </ul>
           </div>
@@ -133,13 +133,13 @@ export const Footer = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} Profischnitt Hairstyling. All rights reserved.</p>
+            <p>© {currentYear} Profischnitt Hairstyling. Alle Rechte vorbehalten.</p>
             <div className="flex gap-6">
               <Link to="/privacy" className="hover:text-primary transition-colors">
-                Privacy Policy
+                Datenschutz
               </Link>
               <Link to="/terms" className="hover:text-primary transition-colors">
-                Terms of Service
+                Impressum
               </Link>
             </div>
           </div>

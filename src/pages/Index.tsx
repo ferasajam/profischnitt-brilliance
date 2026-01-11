@@ -19,34 +19,34 @@ import heroImage from "@/assets/hero-salon.jpg";
 const services = [
   {
     icon: User,
-    title: "Men's Haircut",
-    description: "Precision cuts and classic styles tailored to your features",
-    price: "From €35",
+    title: "Herrenhaarschnitt",
+    description: "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
+    price: "Ab 35€",
   },
   {
     icon: Users,
-    title: "Women's Haircut",
-    description: "Elegant cuts and styling for every occasion",
-    price: "From €45",
+    title: "Damenhaarschnitt",
+    description: "Elegante Schnitte und Styling für jeden Anlass",
+    price: "Ab 45€",
   },
   {
     icon: Scissors,
-    title: "Beard Grooming",
-    description: "Expert beard shaping, trimming, and hot towel treatments",
-    price: "From €25",
+    title: "Bartpflege",
+    description: "Professionelle Bartformung, Trimmen und Heißtuchbehandlungen",
+    price: "Ab 25€",
   },
   {
     icon: Sparkles,
     title: "Waves & Styling",
-    description: "Modern wave techniques and advanced styling services",
-    price: "From €40",
+    description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
+    price: "Ab 40€",
   },
 ];
 
 const openingHours = [
-  { day: "Monday - Friday", hours: "09:00 - 19:00" },
-  { day: "Saturday", hours: "09:00 - 17:00" },
-  { day: "Sunday", hours: "Closed" },
+  { day: "Montag - Freitag", hours: "09:00 - 19:00" },
+  { day: "Samstag", hours: "09:00 - 17:00" },
+  { day: "Sonntag", hours: "Geschlossen" },
 ];
 
 const Index = () => {
@@ -58,7 +58,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img
             src={heroImage}
-            alt="Profischnitt Salon Interior"
+            alt="Profischnitt Salon Interieur"
             className="w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
@@ -94,8 +94,8 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl"
             >
-              Where artistry meets precision. Experience premium hairstyling 
-              for men and women in an atmosphere of pure luxury.
+              Wo Handwerkskunst auf Präzision trifft. Erleben Sie premium 
+              Hairstyling für Damen und Herren in einer Atmosphäre purer Eleganz.
             </motion.p>
 
             <motion.div
@@ -105,10 +105,10 @@ const Index = () => {
               className="flex flex-wrap gap-4"
             >
               <Button asChild variant="gold" size="xl">
-                <Link to="/booking">Book an Appointment</Link>
+                <Link to="/booking">Termin buchen</Link>
               </Button>
               <Button asChild variant="goldOutline" size="xl">
-                <Link to="/team">Meet Our Team</Link>
+                <Link to="/team">Unser Team</Link>
               </Button>
             </motion.div>
           </div>
@@ -140,14 +140,14 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-16">
             <span className="text-primary text-sm font-medium tracking-wider uppercase mb-4 block">
-              Our Services
+              Unsere Leistungen
             </span>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
               Premium <span className="text-gold-gradient">Hairstyling</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              From classic cuts to modern styling, we offer a full range of premium 
-              services for men and women.
+              Von klassischen Schnitten bis zu modernem Styling bieten wir eine 
+              komplette Palette an Premium-Services für Damen und Herren.
             </p>
           </AnimatedSection>
 
@@ -175,7 +175,7 @@ const Index = () => {
 
           <AnimatedSection delay={0.4} className="text-center mt-12">
             <Button asChild variant="goldOutline" size="lg">
-              <Link to="/booking">View All Services & Book</Link>
+              <Link to="/booking">Alle Leistungen & Termin buchen</Link>
             </Button>
           </AnimatedSection>
         </div>
@@ -193,7 +193,7 @@ const Index = () => {
                     <Clock className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="font-serif text-2xl font-semibold text-foreground">
-                    Opening Hours
+                    Öffnungszeiten
                   </h3>
                 </div>
                 <div className="space-y-4">
@@ -214,7 +214,7 @@ const Index = () => {
             <AnimatedSection direction="right">
               <div className="p-8 md:p-12 rounded-3xl bg-card border border-border">
                 <h3 className="font-serif text-2xl font-semibold text-foreground mb-8">
-                  Get in Touch
+                  Kontaktieren Sie uns
                 </h3>
                 <div className="space-y-6">
                   <a
@@ -225,7 +225,7 @@ const Index = () => {
                       <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground block">Phone</span>
+                      <span className="text-sm text-muted-foreground block">Telefon</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
                         +49 123 456 78
                       </span>
@@ -239,7 +239,7 @@ const Index = () => {
                       <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground block">Email</span>
+                      <span className="text-sm text-muted-foreground block">E-Mail</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
                         info@profischnitt.de
                       </span>
@@ -250,7 +250,7 @@ const Index = () => {
                       <MapPin className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground block">Address</span>
+                      <span className="text-sm text-muted-foreground block">Adresse</span>
                       <span className="text-foreground font-medium">
                         Zum Erlenbusch 13, 48167 Münster
                       </span>
@@ -260,7 +260,7 @@ const Index = () => {
 
                 {/* Social Links */}
                 <div className="mt-8 pt-8 border-t border-border">
-                  <span className="text-sm text-muted-foreground mb-4 block">Follow Us</span>
+                  <span className="text-sm text-muted-foreground mb-4 block">Folgen Sie uns</span>
                   <div className="flex gap-4">
                     <motion.a
                       href="https://instagram.com"
@@ -295,24 +295,24 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Visit Our <span className="text-gold-gradient">Salon</span>
+              Besuchen Sie unseren <span className="text-gold-gradient">Salon</span>
             </h2>
             <p className="text-muted-foreground">
-              Find us in the heart of Münster
+              Finden Sie uns im Herzen von Münster
             </p>
           </AnimatedSection>
 
           <AnimatedSection>
             <div className="rounded-3xl overflow-hidden border border-border">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2437.3!2d7.6!3d51.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDU0JzAwLjAiTiA3wrAzNicwMC4wIkU!5e0!3m2!1sen!2sde!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2437.3!2d7.6!3d51.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDU0JzAwLjAiTiA3wrAzNicwMC4wIkU!5e0!3m2!1sde!2sde!4v1"
                 width="100%"
                 height="450"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Profischnitt Hairstyling Location"
+                title="Profischnitt Hairstyling Standort"
                 className="grayscale"
               />
             </div>
@@ -326,13 +326,13 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center max-w-3xl mx-auto">
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Ready for a <span className="text-gold-gradient">Transformation</span>?
+              Bereit für eine <span className="text-gold-gradient">Verwandlung</span>?
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Book your appointment today and experience the art of premium hairstyling.
+              Buchen Sie noch heute Ihren Termin und erleben Sie die Kunst des Premium Hairstylings.
             </p>
             <Button asChild variant="gold" size="xl">
-              <Link to="/booking">Book Your Appointment</Link>
+              <Link to="/booking">Jetzt Termin buchen</Link>
             </Button>
           </AnimatedSection>
         </div>
