@@ -5,9 +5,9 @@ import { Menu, X, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "Startseite" },
   { href: "/team", label: "Team" },
-  { href: "/booking", label: "Book Now" },
+  { href: "/booking", label: "Termin buchen" },
 ];
 
 export const Navigation = () => {
@@ -74,7 +74,7 @@ export const Navigation = () => {
         {/* CTA Button */}
         <div className="hidden md:block">
           <Button asChild variant="gold" size="lg">
-            <Link to="/booking">Book Appointment</Link>
+            <Link to="/booking">Termin buchen</Link>
           </Button>
         </div>
 
@@ -82,7 +82,7 @@ export const Navigation = () => {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden p-2 text-foreground"
-          aria-label="Toggle menu"
+          aria-label="Menü öffnen"
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -126,7 +126,7 @@ export const Navigation = () => {
               >
                 <Button asChild variant="gold" className="w-full mt-4">
                   <Link to="/booking" onClick={() => setIsOpen(false)}>
-                    Book Appointment
+                    Termin buchen
                   </Link>
                 </Button>
               </motion.div>

@@ -9,36 +9,36 @@ const stylists = [
   {
     id: 1,
     name: "Marco Rossi",
-    role: "Master Stylist",
-    specialties: ["Men's Cuts", "Beard Grooming", "Classic Styles"],
-    bio: "With over 15 years of experience, Marco brings Italian precision and artistry to every cut. Known for his attention to detail and personalized consultations.",
+    role: "Meister-Stylist",
+    specialties: ["Herrenschnitte", "Bartpflege", "Klassische Styles"],
+    bio: "Mit über 15 Jahren Erfahrung bringt Marco italienische Präzision und Handwerkskunst in jeden Schnitt. Bekannt für seine Liebe zum Detail und persönliche Beratung.",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=face",
     instagram: "@marco.styles",
   },
   {
     id: 2,
     name: "Elena Schmidt",
-    role: "Creative Director",
-    specialties: ["Women's Styling", "Color Specialist", "Waves & Texture"],
-    bio: "Elena's creative vision has shaped the salon's artistic direction. Her expertise in color theory and modern techniques creates stunning transformations.",
+    role: "Kreativdirektorin",
+    specialties: ["Damenstyling", "Farbspezialistin", "Waves & Textur"],
+    bio: "Elenas kreative Vision hat die künstlerische Ausrichtung des Salons geprägt. Ihre Expertise in Farbtheorie und modernen Techniken schafft atemberaubende Verwandlungen.",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&crop=face",
     instagram: "@elena.hair",
   },
   {
     id: 3,
     name: "David Chen",
-    role: "Senior Stylist",
-    specialties: ["Modern Cuts", "Fades", "Asian Hair Expert"],
-    bio: "David combines traditional techniques with contemporary trends. His precision fades and textured cuts have earned him a loyal following.",
+    role: "Senior-Stylist",
+    specialties: ["Moderne Schnitte", "Fades", "Asiatisches Haar"],
+    bio: "David kombiniert traditionelle Techniken mit zeitgenössischen Trends. Seine präzisen Fades und texturierten Schnitte haben ihm eine treue Anhängerschaft eingebracht.",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=face",
     instagram: "@david.cuts",
   },
   {
     id: 4,
     name: "Sophie Weber",
-    role: "Stylist",
-    specialties: ["Balayage", "Bridal Styling", "Extensions"],
-    bio: "Sophie's passion for bridal and special occasion styling makes her the go-to expert for life's important moments. Her balayage work is sought after.",
+    role: "Stylistin",
+    specialties: ["Balayage", "Brautstyling", "Extensions"],
+    bio: "Sophies Leidenschaft für Braut- und Anlassstyling macht sie zur Expertin für die wichtigen Momente des Lebens. Ihre Balayage-Arbeiten sind sehr gefragt.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&fit=crop&crop=face",
     instagram: "@sophie.styling",
   },
@@ -53,14 +53,14 @@ const Team = () => {
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center max-w-3xl mx-auto">
             <span className="text-primary text-sm font-medium tracking-wider uppercase mb-4 block">
-              Meet the Artists
+              Lernen Sie die Künstler kennen
             </span>
             <h1 className="font-serif text-5xl md:text-6xl font-bold text-foreground mb-6">
-              Our <span className="text-gold-gradient">Team</span>
+              Unser <span className="text-gold-gradient">Team</span>
             </h1>
             <p className="text-muted-foreground text-lg">
-              A collective of passionate stylists dedicated to the art of hairstyling. 
-              Each brings their unique expertise and creative vision to deliver exceptional results.
+              Ein Kollektiv leidenschaftlicher Stylisten, die sich der Kunst des Hairstylings 
+              verschrieben haben. Jeder bringt seine einzigartige Expertise und kreative Vision ein.
             </p>
           </AnimatedSection>
         </div>
@@ -131,7 +131,7 @@ const Team = () => {
                       {/* Specialties */}
                       <div className="mb-6">
                         <span className="text-xs text-muted-foreground uppercase tracking-wider mb-3 block">
-                          Specialties
+                          Spezialgebiete
                         </span>
                         <div className="flex flex-wrap gap-2">
                           {stylist.specialties.map((specialty) => (
@@ -154,7 +154,7 @@ const Team = () => {
                           />
                         ))}
                         <span className="text-sm text-muted-foreground ml-2">
-                          5.0 Rating
+                          5.0 Bewertung
                         </span>
                       </div>
                     </div>
@@ -171,13 +171,13 @@ const Team = () => {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center max-w-2xl mx-auto">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Book with Your <span className="text-gold-gradient">Favorite Stylist</span>
+              Buchen Sie bei Ihrem <span className="text-gold-gradient">Lieblingsstylisten</span>
             </h2>
             <p className="text-muted-foreground mb-8">
-              Choose the artist who matches your style vision and book your appointment today.
+              Wählen Sie den Künstler, der zu Ihrer Stilvorstellung passt, und buchen Sie noch heute Ihren Termin.
             </p>
             <Button asChild variant="gold" size="xl">
-              <Link to="/booking">Book Appointment</Link>
+              <Link to="/booking">Termin buchen</Link>
             </Button>
           </AnimatedSection>
         </div>
