@@ -9,11 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { Scissors } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 const emailSchema = z.string().email('Bitte geben Sie eine gültige E-Mail-Adresse ein');
 const passwordSchema = z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen lang sein');
 
 export default function Auth() {
+  const [params] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -28,6 +30,28 @@ export default function Auth() {
       navigate('/');
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const token = params.get('cancel');
+    if (token) {
+      (async () => {
+        try {
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-booking`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({ token }),
+          });
+          toast({ title: 'Termin storniert', description: 'Ihre Buchung wurde storniert.' });
+          navigate('/');
+        } catch (e) {
+          toast({ title: 'Fehler', description: 'Stornierung fehlgeschlagen.', variant: 'destructive' });
+        }
+      })();
+    }
+  }, [params, navigate, toast]);
 
   const validateInput = () => {
     try {

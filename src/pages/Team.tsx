@@ -18,6 +18,7 @@ interface Stylist {
 
 const Team = () => {
   const [stylists, setStylists] = useState<Stylist[]>([]);
+  const [reviews, setReviews] = useState<Record<string, Array<{ rating: number; comment: string; service_id: string }>>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +32,18 @@ const Team = () => {
       setIsLoading(false);
     };
     loadStylists();
+    (async () => {
+      const { data } = await supabase
+        .from('reviews')
+        .select('stylist_id, service_id, rating, comment');
+      const map: Record<string, Array<{ rating: number; comment: string; service_id: string }>> = {};
+      (data || []).forEach((r) => {
+        if (!r.stylist_id) return;
+        map[r.stylist_id] = map[r.stylist_id] || [];
+        map[r.stylist_id].push({ rating: r.rating as number, comment: r.comment as string, service_id: r.service_id as string });
+      });
+      setReviews(map);
+    })();
   }, []);
 
   return (
@@ -150,18 +163,26 @@ const Team = () => {
                         </div>
                       </div>
 
-                      {/* Rating */}
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-4 h-4 fill-primary text-primary"
-                          />
-                        ))}
-                        <span className="text-sm text-muted-foreground ml-2">
-                          5.0 Bewertung
-                        </span>
-                      </div>
+                      {/* Reviews */}
+                      {reviews[stylist.id] && reviews[stylist.id].length > 0 && (
+                        <div className="mt-6">
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Bewertungen</span>
+                          <div className="space-y-3">
+                            {reviews[stylist.id].slice(0, 3).map((rev, idx) => (
+                              <div key={idx} className="p-3 rounded-lg bg-secondary/50 border border-border">
+                                <div className="flex items-center gap-2 mb-1">
+                                  {[...Array(rev.rating)].map((_, i) => (
+                                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                                  ))}
+                                </div>
+                                {rev.comment && (
+                                  <p className="text-sm text-muted-foreground">{rev.comment}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>

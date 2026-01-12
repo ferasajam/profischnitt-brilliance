@@ -18,6 +18,7 @@ import Services from "./pages/admin/Services";
 import Customers from "./pages/admin/Customers";
 import Loyalty from "./pages/admin/Loyalty";
 import NotFound from "./pages/NotFound";
+import Review from "./pages/Review";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
                   <Route path="customers" element={<Customers />} />
                   <Route path="loyalty" element={<Loyalty />} />
                 </Route>
+                <Route path="/review" element={<Review />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

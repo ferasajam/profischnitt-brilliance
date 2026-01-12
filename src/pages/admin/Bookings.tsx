@@ -89,6 +89,23 @@ export default function Bookings() {
         title: 'Erfolg',
         description: 'Buchungsstatus wurde aktualisiert.',
       });
+      try {
+        if (status === 'completed') {
+          // Send feedback request email
+          const booking = bookings.find(b => b.id === id);
+          if (booking) {
+            const reviewLink = `${window.location.origin}/review?bookingId=${id}&stylistId=${(booking as any).stylist_id ?? ''}&serviceId=${(booking as any).service_id ?? ''}`;
+            await supabase.functions.invoke('send-feedback', {
+              body: {
+                to: booking.customer_email,
+                name: booking.customer_name,
+                bookingId: id,
+                reviewLink,
+              },
+            });
+          }
+        }
+      } catch {}
       fetchBookings();
     }
   };

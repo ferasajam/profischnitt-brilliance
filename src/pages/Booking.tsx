@@ -118,13 +118,60 @@ const Booking = () => {
     if (prev) setStep(prev);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    nextStep();
+    if (!selectedService || !selectedStylist || !selectedDate || !selectedTime) return;
+
+    const start = selectedTime + ":00"; // HH:MM:SS
+    const [h, m] = selectedTime.split(":").map(Number);
+    const endDate = new Date(selectedDate);
+    endDate.setHours(h, m + (currentService?.duration_minutes || 30), 0, 0);
+    const end = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}:00`;
+
+    const booking_date = selectedDate.toISOString().slice(0, 10);
+
+    const cancellation_token = (crypto as any).randomUUID ? (crypto as any).randomUUID() : undefined;
+
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert({
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        booking_date,
+        start_time: start,
+        end_time: end,
+        status: 'pending',
+        stylist_id: selectedStylist,
+        service_id: selectedService,
+        cancellation_token,
+      })
+      .select('id, cancellation_token')
+      .single();
+
+    if (!error && data) {
+      try {
+        const cancelLink = `${window.location.origin}/auth?cancel=${data.cancellation_token}`;
+        await supabase.functions.invoke('send-confirmation', {
+          body: {
+            to: formData.email,
+            name: formData.name,
+            booking: {
+              service: currentService?.name,
+              stylist: currentStylist?.name,
+              date: booking_date,
+              time: selectedTime,
+            },
+            cancelLink,
+          },
+        });
+      } catch {}
+      nextStep();
+    }
   };
 
-  // Generate next 14 days
-  const dates = Array.from({ length: 14 }, (_, i) => {
+  // Generate next 90 days (approx. 3 months), exclude Sundays
+  const dates = Array.from({ length: 90 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() + i);
     return date;
