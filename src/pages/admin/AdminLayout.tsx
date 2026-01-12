@@ -84,8 +84,11 @@ export default function AdminLayout() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && (!user || !isStaff)) {
+    if (isLoading) return;
+    if (!user) {
       navigate('/auth');
+    } else if (!isStaff) {
+      navigate('/');
     }
   }, [user, isStaff, isLoading, navigate]);
 

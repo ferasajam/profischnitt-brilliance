@@ -27,40 +27,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('user_roles')
       .select('role')
       .eq('user_id', userId);
-    
+
     if (data) {
-      setIsAdmin(data.some(r => r.role === 'admin'));
-      setIsStaff(data.some(r => r.role === 'staff' || r.role === 'admin'));
+      setIsAdmin(data.some((r) => r.role === 'admin'));
+      setIsStaff(data.some((r) => r.role === 'staff' || r.role === 'admin'));
+    } else {
+      setIsAdmin(false);
+      setIsStaff(false);
     }
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        setIsLoading(false);
-        
+
         if (session?.user) {
-          setTimeout(() => {
-            checkUserRole(session.user.id);
-          }, 0);
+          setIsLoading(true);
+          // Load roles before marking loading as finished
+          (async () => {
+            try {
+              await checkUserRole(session.user.id);
+            } finally {
+              setIsLoading(false);
+            }
+          })();
         } else {
           setIsAdmin(false);
           setIsStaff(false);
+          setIsLoading(false);
         }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initialize session and roles on first load
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
-      setIsLoading(false);
-      
+
       if (session?.user) {
-        checkUserRole(session.user.id);
+        setIsLoading(true);
+        try {
+          await checkUserRole(session.user.id);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsAdmin(false);
+        setIsStaff(false);
+        setIsLoading(false);
       }
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);
