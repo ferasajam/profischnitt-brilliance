@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
   { href: "/", label: "Startseite" },
@@ -13,6 +14,7 @@ const navLinks = [
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAdmin, isStaff } = useAuth();
 
   return (
     <motion.header
@@ -71,8 +73,13 @@ export const Navigation = () => {
           ))}
         </div>
 
-        {/* CTA Button */}
-        <div className="hidden md:block">
+        {/* CTA Buttons */}
+        <div className="hidden md:flex items-center gap-3">
+          {(isAdmin || isStaff) && (
+            <Button asChild variant="gold" size="lg">
+              <Link to="/admin">Admin</Link>
+            </Button>
+          )}
           <Button asChild variant="gold" size="lg">
             <Link to="/booking">Termin buchen</Link>
           </Button>
@@ -130,6 +137,19 @@ export const Navigation = () => {
                   </Link>
                 </Button>
               </motion.div>
+              {(isAdmin || isStaff) && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  <Button asChild variant="outline" className="w-full mt-2">
+                    <Link to="/admin" onClick={() => setIsOpen(false)}>
+                      Admin
+                    </Link>
+                  </Button>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}

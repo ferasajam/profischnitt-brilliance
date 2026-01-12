@@ -3,48 +3,36 @@ import { Link } from "react-router-dom";
 import { Instagram, Award, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-// Placeholder stylist data - will be managed from admin panel with database
-const stylists = [
-  {
-    id: 1,
-    name: "Marco Rossi",
-    role: "Meister-Stylist",
-    specialties: ["Herrenschnitte", "Bartpflege", "Klassische Styles"],
-    bio: "Mit über 15 Jahren Erfahrung bringt Marco italienische Präzision und Handwerkskunst in jeden Schnitt. Bekannt für seine Liebe zum Detail und persönliche Beratung.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=face",
-    instagram: "@marco.styles",
-  },
-  {
-    id: 2,
-    name: "Elena Schmidt",
-    role: "Kreativdirektorin",
-    specialties: ["Damenstyling", "Farbspezialistin", "Waves & Textur"],
-    bio: "Elenas kreative Vision hat die künstlerische Ausrichtung des Salons geprägt. Ihre Expertise in Farbtheorie und modernen Techniken schafft atemberaubende Verwandlungen.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&crop=face",
-    instagram: "@elena.hair",
-  },
-  {
-    id: 3,
-    name: "David Chen",
-    role: "Senior-Stylist",
-    specialties: ["Moderne Schnitte", "Fades", "Asiatisches Haar"],
-    bio: "David kombiniert traditionelle Techniken mit zeitgenössischen Trends. Seine präzisen Fades und texturierten Schnitte haben ihm eine treue Anhängerschaft eingebracht.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=face",
-    instagram: "@david.cuts",
-  },
-  {
-    id: 4,
-    name: "Sophie Weber",
-    role: "Stylistin",
-    specialties: ["Balayage", "Brautstyling", "Extensions"],
-    bio: "Sophies Leidenschaft für Braut- und Anlassstyling macht sie zur Expertin für die wichtigen Momente des Lebens. Ihre Balayage-Arbeiten sind sehr gefragt.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&fit=crop&crop=face",
-    instagram: "@sophie.styling",
-  },
-];
+interface Stylist {
+  id: string;
+  name: string;
+  title: string | null;
+  specialty: string | null;
+  bio: string | null;
+  image_url: string | null;
+  instagram_url: string | null;
+}
 
 const Team = () => {
+  const [stylists, setStylists] = useState<Stylist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStylists = async () => {
+      const { data } = await supabase
+        .from('stylists')
+        .select('id, name, title, specialty, bio, image_url, instagram_url')
+        .eq('is_active', true)
+        .order('name');
+      setStylists(data || []);
+      setIsLoading(false);
+    };
+    loadStylists();
+  }, []);
+
   return (
     <div className="bg-background min-h-screen">
       {/* Hero Section */}
@@ -70,6 +58,14 @@ const Team = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {isLoading && (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+              </div>
+            )}
+            {!isLoading && stylists.length === 0 && (
+              <p className="text-muted-foreground text-center py-8">Keine aktiven Stylisten vorhanden.</p>
+            )}
             {stylists.map((stylist, index) => (
               <AnimatedSection
                 key={stylist.id}
@@ -89,11 +85,13 @@ const Team = () => {
                         transition={{ duration: 0.6 }}
                         className="h-80 lg:h-full"
                       >
-                        <img
-                          src={stylist.image}
-                          alt={stylist.name}
-                          className="w-full h-full object-cover"
-                        />
+                        {stylist.image_url && (
+                          <img
+                            src={stylist.image_url}
+                            alt={stylist.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent lg:bg-gradient-to-r" />
                       </motion.div>
                     </div>
@@ -108,20 +106,23 @@ const Team = () => {
                           <div className="flex items-center gap-2">
                             <Award className="w-4 h-4 text-primary" />
                             <span className="text-primary text-sm font-medium">
-                              {stylist.role}
+                              {stylist.title || 'Stylist'}
                             </span>
                           </div>
                         </div>
-                        <motion.a
-                          href={`https://instagram.com/${stylist.instagram.slice(1)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-full bg-secondary hover:bg-primary/20 transition-colors"
-                        >
-                          <Instagram className="w-5 h-5 text-primary" />
-                        </motion.a>
+                        {stylist.instagram_url && (
+                          <motion.a
+                            href={stylist.instagram_url.startsWith('@') ?
+                              `https://instagram.com/${stylist.instagram_url.slice(1)}` : stylist.instagram_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 rounded-full bg-secondary hover:bg-primary/20 transition-colors"
+                          >
+                            <Instagram className="w-5 h-5 text-primary" />
+                          </motion.a>
+                        )}
                       </div>
 
                       <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
@@ -134,14 +135,18 @@ const Team = () => {
                           Spezialgebiete
                         </span>
                         <div className="flex flex-wrap gap-2">
-                          {stylist.specialties.map((specialty) => (
-                            <span
-                              key={specialty}
-                              className="px-3 py-1.5 rounded-full bg-secondary text-foreground text-xs font-medium border border-border"
-                            >
-                              {specialty}
-                            </span>
-                          ))}
+                          {(stylist.specialty || '')
+                            .split(',')
+                            .map(s => s.trim())
+                            .filter(Boolean)
+                            .map((specialty) => (
+                              <span
+                                key={specialty}
+                                className="px-3 py-1.5 rounded-full bg-secondary text-foreground text-xs font-medium border border-border"
+                              >
+                                {specialty}
+                              </span>
+                            ))}
                         </div>
                       </div>
 

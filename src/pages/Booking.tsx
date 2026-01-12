@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, 
@@ -15,27 +15,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnimatedSection } from "@/components/AnimatedSection";
+import { supabase } from "@/integrations/supabase/client";
 
-// Placeholder data - will come from database
-const stylists = [
-  { id: 1, name: "Marco Rossi", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" },
-  { id: 2, name: "Elena Schmidt", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" },
-  { id: 3, name: "David Chen", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" },
-  { id: 4, name: "Sophie Weber", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" },
-];
+interface Service {
+  id: string;
+  name: string;
+  category: string | null;
+  duration_minutes: number;
+  price: number;
+}
 
-const menServices = [
-  { id: "men-cut", name: "Haarschnitt", price: 35, duration: 30 },
-  { id: "men-cut-beard", name: "Haarschnitt + Bart", price: 50, duration: 45 },
-  { id: "men-beard", name: "Bartpflege", price: 25, duration: 20 },
-];
-
-const womenServices = [
-  { id: "women-cut", name: "Haarschnitt", price: 45, duration: 45 },
-  { id: "women-cut-style", name: "Haarschnitt + Styling", price: 65, duration: 60 },
-  { id: "women-waves", name: "Waves & Styling", price: 40, duration: 45 },
-  { id: "women-color", name: "Färbung", price: 80, duration: 90 },
-];
+interface Stylist {
+  id: string;
+  name: string;
+  image_url: string | null;
+}
 
 // Mock available time slots
 const timeSlots = [
@@ -50,7 +44,9 @@ const Booking = () => {
   const [step, setStep] = useState<BookingStep>("gender");
   const [gender, setGender] = useState<"men" | "women" | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [selectedStylist, setSelectedStylist] = useState<number | null>(null);
+  const [selectedStylist, setSelectedStylist] = useState<string | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [stylists, setStylists] = useState<Stylist[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -59,9 +55,55 @@ const Booking = () => {
     phone: "",
   });
 
-  const services = gender === "men" ? menServices : womenServices;
   const currentService = services.find(s => s.id === selectedService);
   const currentStylist = stylists.find(s => s.id === selectedStylist);
+
+  // Load services when gender changes
+  useEffect(() => {
+    if (!gender) return;
+    const category = gender === 'men' ? 'Herren' : 'Damen';
+    (async () => {
+      const { data } = await supabase
+        .from('services')
+        .select('id, name, category, duration_minutes, price')
+        .eq('is_active', true)
+        .eq('category', category)
+        .order('name');
+      setServices(data || []);
+      setSelectedService(null);
+    })();
+  }, [gender]);
+
+  // Load stylists based on selected service or gender category
+  useEffect(() => {
+    if (!gender) return;
+    const category = gender === 'men' ? 'Herren' : 'Damen';
+    (async () => {
+      if (selectedService) {
+        // Stylists linked to the chosen service
+        const { data } = await supabase
+          .from('stylist_services')
+          .select('stylist_id, stylists(id, name, image_url)')
+          .eq('service_id', selectedService);
+        const result: Stylist[] = (data || [])
+          .map((r: any) => r.stylists)
+          .filter(Boolean);
+        setStylists(result);
+      } else {
+        // Stylists linked to any service in the chosen category
+        const { data } = await supabase
+          .from('stylist_services')
+          .select('stylist_id, services(category), stylists(id, name, image_url)')
+          .eq('services.category', category);
+        const byId = new Map<string, Stylist>();
+        (data || []).forEach((row: any) => {
+          if (row.stylists) byId.set(row.stylists.id, row.stylists);
+        });
+        setStylists([...byId.values()]);
+      }
+      setSelectedStylist(null);
+    })();
+  }, [gender, selectedService]);
 
   const steps: BookingStep[] = ["gender", "service", "stylist", "datetime", "details", "confirmation"];
   const currentStepIndex = steps.indexOf(step);
@@ -243,9 +285,9 @@ const Booking = () => {
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-                            {service.id.includes('beard') || service.id.includes('bart') ? (
+                            {service.name.toLowerCase().includes('bart') ? (
                               <Scissors className="w-6 h-6 text-primary" />
-                            ) : service.id.includes('waves') || service.id.includes('style') ? (
+                            ) : service.name.toLowerCase().includes('style') || service.name.toLowerCase().includes('wave') ? (
                               <Sparkles className="w-6 h-6 text-primary" />
                             ) : (
                               <Scissors className="w-6 h-6 text-primary" />
@@ -256,7 +298,7 @@ const Booking = () => {
                               {service.name}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              {service.duration} Min.
+                              {service.duration_minutes} Min.
                             </span>
                           </div>
                         </div>
@@ -307,11 +349,13 @@ const Booking = () => {
                             : 'border-border hover:border-primary/50 bg-card'
                         }`}
                       >
-                        <img
-                          src={stylist.image}
-                          alt={stylist.name}
-                          className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-border"
-                        />
+                        {stylist.image_url && (
+                          <img
+                            src={stylist.image_url}
+                            alt={stylist.name}
+                            className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-border"
+                          />
+                        )}
                         <span className="font-semibold text-foreground block">
                           {stylist.name}
                         </span>
