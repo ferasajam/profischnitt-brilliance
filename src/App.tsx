@@ -5,9 +5,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Team from "./pages/Team";
 import Booking from "./pages/Booking";
+import Auth from "./pages/Auth";
+import AdminLayout from "./pages/admin/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Bookings from "./pages/admin/Bookings";
+import Stylists from "./pages/admin/Stylists";
+import Services from "./pages/admin/Services";
+import Customers from "./pages/admin/Customers";
+import Loyalty from "./pages/admin/Loyalty";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -15,23 +24,33 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen flex flex-col">
-          <Navigation />
-          <main className="flex-1 pt-20">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/booking" element={<Booking />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-1 pt-20">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/team" element={<Team />} />
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="bookings" element={<Bookings />} />
+                  <Route path="stylists" element={<Stylists />} />
+                  <Route path="services" element={<Services />} />
+                  <Route path="customers" element={<Customers />} />
+                  <Route path="loyalty" element={<Loyalty />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
