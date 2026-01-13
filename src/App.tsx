@@ -20,6 +20,7 @@ import Loyalty from "./pages/admin/Loyalty";
 import NotFound from "./pages/NotFound";
 import Review from "./pages/Review";
 import Cancel from "./pages/Cancel";
+import Profile from "./pages/Profile";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/team" element={<Team />} />
                 <Route path="/booking" element={<Booking />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/cancel" element={<Cancel />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Dashboard />} />

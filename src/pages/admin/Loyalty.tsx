@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Gift, Plus, TrendingUp, TrendingDown, Star } from 'lucide-react';
+import { Gift, Plus, TrendingUp, TrendingDown, Star, CheckCircle2, Settings as SettingsIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -36,6 +36,8 @@ export default function Loyalty() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [threshold, setThreshold] = useState<number>(10);
+  const [savingThreshold, setSavingThreshold] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [pointsAmount, setPointsAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'bonus' | 'redeemed'>('bonus');
@@ -43,10 +45,11 @@ export default function Loyalty() {
   const { toast } = useToast();
 
   const fetchData = async () => {
-    const [loyaltyResult, transactionsResult, profilesResult] = await Promise.all([
+    const [loyaltyResult, transactionsResult, profilesResult, settingsResult] = await Promise.all([
       supabase.from('loyalty_points').select('*').order('points', { ascending: false }),
       supabase.from('loyalty_transactions').select('*').order('created_at', { ascending: false }).limit(20),
-      supabase.from('profiles').select('id, first_name, last_name, email')
+      supabase.from('profiles').select('id, first_name, last_name, email'),
+      (supabase as any).from('app_settings').select('key, value').eq('key','loyalty_threshold').maybeSingle()
     ]);
 
     if (loyaltyResult.error || transactionsResult.error) {
@@ -70,8 +73,47 @@ export default function Loyalty() {
       
       setLoyaltyData(loyaltyWithProfiles);
       setTransactions(transactionsWithProfiles);
+      const v = Number((settingsResult as any)?.data?.value);
+      setThreshold(Number.isFinite(v) && v > 0 ? v : 10);
     }
     setIsLoading(false);
+  };
+  const saveThreshold = async () => {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+      alert('Supabase-Konfiguration fehlt (VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY). Bitte .env prüfen.');
+      return;
+    }
+    setSavingThreshold(true);
+    const { error } = await (supabase as any).from('app_settings').upsert(
+      { key: 'loyalty_threshold', value: String(Math.max(1, threshold)) },
+      { onConflict: 'key' }
+    );
+    setSavingThreshold(false);
+    if (error) {
+      // Table might not exist yet; inform admin succinctly
+      alert('Konnte Schwellenwert nicht speichern. Bitte stellen Sie sicher, dass die Tabelle app_settings existiert (key TEXT PRIMARY KEY, value TEXT).');
+      return;
+    }
+  };
+
+  const redeemFreeCut = async (customerId: string) => {
+    // Redeem threshold points as a free haircut
+    const current = loyaltyData.find(l => l.customer_id === customerId);
+    if (!current || current.points < threshold) return;
+    const pts = threshold;
+    // Create redeem transaction and update points
+    const { error: txError } = await supabase.from('loyalty_transactions').insert({
+      customer_id: customerId,
+      points: -pts,
+      transaction_type: 'redeemed',
+      description: 'Kostenloser Haarschnitt eingelöst'
+    });
+    if (txError) return;
+    const { error: upError } = await supabase
+      .from('loyalty_points')
+      .update({ points: Math.max(0, current.points - pts), total_redeemed: current.total_redeemed + pts })
+      .eq('customer_id', customerId);
+    if (!upError) fetchData();
   };
 
   useEffect(() => {
@@ -277,6 +319,38 @@ export default function Loyalty() {
         <Card className="border-border/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
+              Schwelle für Gratis-Schnitt
+            </CardTitle>
+            <SettingsIcon className="w-5 h-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                step={1}
+                min={1}
+                value={threshold}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D+/g, '');
+                  const v = onlyDigits ? parseInt(onlyDigits, 10) : 1;
+                  setThreshold(Math.max(1, v));
+                }}
+                onBlur={() => setThreshold(Math.max(1, threshold))}
+                className="max-w-[120px]"
+                aria-label="Schwellenwert Punkte"
+              />
+              <Button size="sm" onClick={saveThreshold} disabled={savingThreshold}>
+                {savingThreshold ? 'Speichern…' : 'Speichern'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Kunden erhalten nach {threshold} Punkten einen kostenlosen Haarschnitt.</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Teilnehmer
             </CardTitle>
             <Star className="w-5 h-5 text-yellow-500" />
@@ -287,17 +361,11 @@ export default function Loyalty() {
         </Card>
         <Card className="border-border/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Durchschnitt
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Durchschnitt</CardTitle>
             <TrendingUp className="w-5 h-5 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {loyaltyData.length > 0 
-                ? Math.round(totalPoints / loyaltyData.length).toLocaleString('de-DE')
-                : 0}
-            </div>
+            <div className="text-3xl font-bold">{loyaltyData.length > 0 ? Math.round(totalPoints / loyaltyData.length).toLocaleString('de-DE') : 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -340,8 +408,20 @@ export default function Loyalty() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-primary">{customer.points}</p>
+                      <div className="flex items-center justify-end gap-2">
+                        <p className="text-lg font-bold text-primary">{customer.points}</p>
+                        {customer.points >= threshold && (
+                          <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                            <CheckCircle2 className="w-4 h-4" /> Prämie verfügbar
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">Punkte</p>
+                      {customer.points >= threshold && (
+                        <Button size="sm" className="mt-1" onClick={() => redeemFreeCut(customer.customer_id)}>
+                          Gratis-Schnitt einlösen
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}

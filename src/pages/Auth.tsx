@@ -16,6 +16,7 @@ const passwordSchema = z.string().min(6, 'Das Passwort muss mindestens 6 Zeichen
 
 export default function Auth() {
   const [params] = useSearchParams();
+  const initialTab = params.get('tab') === 'register' ? 'register' : 'login';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -135,7 +136,7 @@ export default function Auth() {
           <CardDescription>Melden Sie sich an oder erstellen Sie ein Konto</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={initialTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="login">Anmelden</TabsTrigger>
               <TabsTrigger value="register">Registrieren</TabsTrigger>

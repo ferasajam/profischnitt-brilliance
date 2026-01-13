@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import heroImage from "@/assets/hero-salon.jpg";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const services = [
   {
@@ -50,6 +52,17 @@ const openingHours = [
 ];
 
 const Index = () => {
+  const [threshold, setThreshold] = useState<number>(10);
+
+  useEffect(() => {
+    (async () => {
+      type UnknownBuilder = { select: (q: string) => UnknownBuilder; eq: (c: string, v: unknown) => UnknownBuilder; maybeSingle: () => Promise<unknown> };
+      const builder = (supabase as unknown as { from: (t: string) => UnknownBuilder }).from('app_settings');
+      const res = await builder.select('value').eq('key','loyalty_threshold').maybeSingle() as { data?: { value?: string } };
+      const v = Number(res?.data?.value);
+      setThreshold(Number.isFinite(v) && v > 0 ? v : 10);
+    })();
+  }, []);
   return (
     <div className="bg-background">
       {/* Hero Section */}
@@ -133,6 +146,20 @@ const Index = () => {
             />
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* CTA Banner for Loyalty */}
+      <section className="py-6">
+        <div className="container mx-auto px-4">
+          <div className="rounded-2xl border border-border bg-card p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-center md:text-left text-sm md:text-base text-foreground">
+              Jetzt registrieren und nach <span className="font-semibold text-primary">{threshold}</span> Punkten einen <span className="text-gold-gradient">Gratis-Haarschnitt</span> erhalten.
+            </p>
+            <Button asChild variant="gold">
+              <Link to="/auth?tab=register">Jetzt registrieren</Link>
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* Services Section */}
