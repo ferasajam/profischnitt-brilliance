@@ -313,7 +313,7 @@ const Index = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Profischnitt Hairstyling Standort"
-                className="grayscale"
+                className="grayscale w-full h-64 md:h-96"
               />
             </div>
           </AnimatedSection>

@@ -19,6 +19,8 @@ import Customers from "./pages/admin/Customers";
 import Loyalty from "./pages/admin/Loyalty";
 import NotFound from "./pages/NotFound";
 import Review from "./pages/Review";
+import Cancel from "./pages/Cancel";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -32,11 +34,13 @@ const App = () => (
           <div className="min-h-screen flex flex-col">
             <Navigation />
             <main className="flex-1 pt-20">
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/booking" element={<Booking />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/cancel" element={<Cancel />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="bookings" element={<Bookings />} />

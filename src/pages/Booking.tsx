@@ -49,6 +49,7 @@ const Booking = () => {
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [busySlots, setBusySlots] = useState<Array<{ start_time: string; end_time: string }>>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -105,6 +106,24 @@ const Booking = () => {
     })();
   }, [gender, selectedService]);
 
+  // Load booked slots for selected stylist + date
+  useEffect(() => {
+    const loadBusy = async () => {
+      if (!selectedStylist || !selectedDate) {
+        setBusySlots([]);
+        return;
+      }
+      const booking_date = selectedDate.toISOString().slice(0, 10);
+      const { data } = await supabase.rpc('get_booked_slots', {
+        _stylist_id: selectedStylist,
+        _date: booking_date,
+      });
+      setBusySlots((data as any[])?.map((r: any) => ({ start_time: r.start_time, end_time: r.end_time })) || []);
+      setSelectedTime(null);
+    };
+    loadBusy();
+  }, [selectedStylist, selectedDate]);
+
   const steps: BookingStep[] = ["gender", "service", "stylist", "datetime", "details", "confirmation"];
   const currentStepIndex = steps.indexOf(step);
 
@@ -149,9 +168,25 @@ const Booking = () => {
       .select('id, cancellation_token')
       .single();
 
-    if (!error && data) {
+    if (error) {
+      // If another user just booked this slot, the DB constraint will reject
+      if ((error as any).code === '23P01' || (error as any).message?.includes('bookings_no_overlap')) {
+        alert('Dieser Termin wurde gerade von jemand anderem gebucht. Bitte wählen Sie eine andere Zeit.');
+        // Reload busy slots to refresh availability
+        const { data: refreshed } = await supabase.rpc('get_booked_slots', {
+          _stylist_id: selectedStylist,
+          _date: booking_date,
+        });
+        setBusySlots((refreshed as any[])?.map((r: any) => ({ start_time: r.start_time, end_time: r.end_time })) || []);
+        setSelectedTime(null);
+        return;
+      }
+      return;
+    }
+
+    if (data) {
       try {
-        const cancelLink = `${window.location.origin}/auth?cancel=${data.cancellation_token}`;
+        const cancelLink = `${window.location.origin}/cancel?token=${data.cancellation_token}`;
         await supabase.functions.invoke('send-confirmation', {
           body: {
             to: formData.email,
@@ -263,7 +298,7 @@ const Booking = () => {
                       Ich suche Services für...
                     </h2>
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {[
                       { value: "men", icon: User, label: "Herren" },
                       { value: "women", icon: Users, label: "Damen" },
@@ -380,7 +415,7 @@ const Booking = () => {
                     </h2>
                     <div className="w-20" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {stylists.map((stylist) => (
                       <motion.button
                         key={stylist.id}
@@ -475,22 +510,50 @@ const Booking = () => {
                         <Clock className="w-5 h-5 text-primary" />
                         <span className="font-medium text-foreground">Verfügbare Zeiten</span>
                       </div>
-                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-                        {timeSlots.map((time) => (
-                          <motion.button
-                            key={time}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setSelectedTime(time)}
-                            className={`p-3 rounded-lg border-2 transition-all ${
-                              selectedTime === time
-                                ? 'border-primary bg-primary text-primary-foreground'
-                                : 'border-border hover:border-primary/50 bg-card text-foreground'
-                            }`}
-                          >
-                            {time}
-                          </motion.button>
-                        ))}
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        {timeSlots.map((time) => {
+                          // Determine if this start time would overlap any busy slot
+                          const [h, m] = time.split(":").map(Number);
+                          const start = new Date(selectedDate);
+                          start.setHours(h, m, 0, 0);
+                          const end = new Date(start);
+                          end.setMinutes(end.getMinutes() + (currentService?.duration_minutes || 30));
+
+                          const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:00`;
+                          const candStart = fmt(start);
+                          const candEnd = fmt(end);
+
+                          const overlaps = busySlots.some((b) => {
+                            // intervals [a,b) && [c,d) overlap if a < d && c < b
+                            return (candStart < b.end_time) && (b.start_time < candEnd);
+                          });
+
+                          // Optional: prevent past times for today
+                          const now = new Date();
+                          const isToday = selectedDate.toDateString() === now.toDateString();
+                          const isPast = isToday && start <= now;
+
+                          const disabled = overlaps || isPast || !currentService;
+
+                          return (
+                            <motion.button
+                              key={time}
+                              whileHover={{ scale: disabled ? 1 : 1.05 }}
+                              whileTap={{ scale: disabled ? 1 : 0.95 }}
+                              onClick={() => !disabled && setSelectedTime(time)}
+                              className={`p-3 rounded-lg border-2 transition-all ${
+                                disabled
+                                  ? 'border-border/50 bg-muted text-muted-foreground cursor-not-allowed opacity-60'
+                                  : selectedTime === time
+                                  ? 'border-primary bg-primary text-primary-foreground'
+                                  : 'border-border hover:border-primary/50 bg-card text-foreground'
+                              }`}
+                              aria-disabled={disabled}
+                            >
+                              {time}
+                            </motion.button>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
