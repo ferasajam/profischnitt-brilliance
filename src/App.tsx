@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/hooks/useAuth";
+
 import Index from "./pages/Index";
 import Team from "./pages/Team";
 import Booking from "./pages/Booking";
@@ -21,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import Review from "./pages/Review";
 import Cancel from "./pages/Cancel";
 import Profile from "./pages/Profile";
+import Leistungen from "./pages/Leistungen";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/booking" element={<Booking />} />
+                <Route path="/leistungen" element={<Leistungen />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/cancel" element={<Cancel />} />

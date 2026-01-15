@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
   { href: "/", label: "Startseite" },
+  { href: "/leistungen", label: "Leistungen" },
   { href: "/team", label: "Team" },
-  { href: "/booking", label: "Termin buchen" },
 ];
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { isAdmin, isStaff, user } = useAuth();
+  const { isAdmin, isStaff, user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
 
@@ -115,6 +116,11 @@ export const Navigation = () => {
               <Link to="/auth">Anmelden</Link>
             </Button>
           )}
+          {!user && (
+            <Button asChild variant="goldOutline" size="lg">
+              <Link to="/auth?tab=register">Registrieren</Link>
+            </Button>
+          )}
           <Button asChild variant="gold" size="lg">
             <Link to="/booking">Termin buchen</Link>
           </Button>
@@ -211,6 +217,19 @@ export const Navigation = () => {
                   </Button>
                 )}
               </motion.div>
+              {!user && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.34 }}
+                >
+                  <Button asChild variant="ghost" className="w-full mt-1">
+                    <Link to="/auth?tab=register" onClick={() => setIsOpen(false)}>
+                      Registrieren
+                    </Link>
+                  </Button>
+                </motion.div>
+              )}
               {(isAdmin || isStaff) && (
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -221,6 +240,21 @@ export const Navigation = () => {
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
                       Admin
                     </Link>
+                  </Button>
+                </motion.div>
+              )}
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.36 }}
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full mt-2"
+                    onClick={async () => { await signOut(); setIsOpen(false); navigate('/'); }}
+                  >
+                    Abmelden
                   </Button>
                 </motion.div>
               )}

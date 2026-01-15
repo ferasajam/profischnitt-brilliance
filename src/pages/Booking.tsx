@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnimatedSection } from "@/components/AnimatedSection";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Service {
@@ -41,6 +42,7 @@ const timeSlots = [
 type BookingStep = "gender" | "service" | "stylist" | "datetime" | "details" | "confirmation";
 
 const Booking = () => {
+  const { user } = useAuth();
   const [step, setStep] = useState<BookingStep>("gender");
   const [gender, setGender] = useState<"men" | "women" | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
@@ -154,6 +156,7 @@ const Booking = () => {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
+        customer_id: user?.id ?? null,
         customer_name: formData.name,
         customer_email: formData.email,
         customer_phone: formData.phone,

@@ -23,31 +23,31 @@ const services = [
     icon: User,
     title: "Herrenhaarschnitt",
     description: "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
-    price: "Ab 35€",
+    price: "Ab 21€",
   },
   {
     icon: Users,
     title: "Damenhaarschnitt",
     description: "Elegante Schnitte und Styling für jeden Anlass",
-    price: "Ab 45€",
+    price: "Ab 35€",
   },
   {
     icon: Scissors,
     title: "Bartpflege",
     description: "Professionelle Bartformung, Trimmen und Heißtuchbehandlungen",
-    price: "Ab 25€",
+    price: "Ab 13€",
   },
   {
     icon: Sparkles,
     title: "Waves & Styling",
     description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
-    price: "Ab 40€",
+    price: "Ab 50€",
   },
 ];
 
 const openingHours = [
   { day: "Montag - Freitag", hours: "09:00 - 19:00" },
-  { day: "Samstag", hours: "09:00 - 17:00" },
+  { day: "Samstag", hours: "09:00 - 19:00" },
   { day: "Sonntag", hours: "Geschlossen" },
 ];
 
@@ -202,7 +202,7 @@ const Index = () => {
 
           <AnimatedSection delay={0.4} className="text-center mt-12">
             <Button asChild variant="goldOutline" size="lg">
-              <Link to="/booking">Alle Leistungen & Termin buchen</Link>
+              <Link to="/leistungen">Alle Leistungen</Link>
             </Button>
           </AnimatedSection>
         </div>
@@ -325,14 +325,14 @@ const Index = () => {
               Besuchen Sie unseren <span className="text-gold-gradient">Salon</span>
             </h2>
             <p className="text-muted-foreground">
-              Finden Sie uns im Herzen von Münster
+              Finden Sie uns im Herzen von Münster-Hiltrup
             </p>
           </AnimatedSection>
 
           <AnimatedSection>
             <div className="rounded-3xl overflow-hidden border border-border">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2437.3!2d7.6!3d51.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDU0JzAwLjAiTiA3wrAzNicwMC4wIkU!5e0!3m2!1sde!2sde!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2533.4719283422704!2d7.673737876766184!3d51.91810127145644!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b9ae8e145d420f%3A0xf0c3e1d3f57c4b6b!2sZum%20Erlenbusch%2013%2C%2048167%20M%C3%BCnster!5e0!3m2!1sde!2sde!4v1736940000000!5m2!1sde!2sde"
                 width="100%"
                 height="450"
                 style={{ border: 0 }}
@@ -340,8 +340,11 @@ const Index = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Profischnitt Hairstyling Standort"
-                className="grayscale w-full h-64 md:h-96"
+                className="w-full h-64 md:h-96"
               />
+              <div className="mt-6 text-center">
+                <span className="text-foreground font-medium text-lg">Zum Erlenbusch 13, 48167 Münster</span>
+              </div>
             </div>
           </AnimatedSection>
         </div>

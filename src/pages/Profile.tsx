@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { User as UserIcon, Shield, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -102,14 +104,22 @@ export default function Profile() {
         <div className="absolute inset-0 bg-gradient-radial-gold opacity-20" />
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection>
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <UserIcon className="w-7 h-7 text-primary" />
+            <div className="flex items-center justify-between gap-4 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <UserIcon className="w-7 h-7 text-primary" />
+                </div>
+                <div>
+                  <h1 className="font-serif text-3xl font-bold text-foreground">Mein Profil</h1>
+                  <p className="text-muted-foreground">{fullName}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="font-serif text-3xl font-bold text-foreground">Mein Profil</h1>
-                <p className="text-muted-foreground">{fullName}</p>
-              </div>
+              <Button
+                variant="outline"
+                onClick={async () => { await signOut(); navigate('/'); }}
+              >
+                Abmelden
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
