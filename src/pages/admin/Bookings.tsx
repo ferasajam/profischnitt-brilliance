@@ -156,8 +156,7 @@ const Booking = () => {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
-        // customer_id wird nur gesetzt, wenn ein User eingeloggt ist, sonst bleibt das Feld weg
-        ...(user?.id ? { customer_id: user.id } : {}),
+        customer_id: user?.id ?? null,
         customer_name: formData.name,
         customer_email: formData.email,
         customer_phone: formData.phone,
