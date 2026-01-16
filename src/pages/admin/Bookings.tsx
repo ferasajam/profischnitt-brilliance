@@ -249,6 +249,7 @@ export default function Bookings() {
                           {booking.status === 'pending' && (
                             <>
                               <Button
+                                type="button"
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8 text-green-500 hover:text-green-600"
