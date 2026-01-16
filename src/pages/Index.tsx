@@ -254,7 +254,7 @@ const Index = () => {
                     <div>
                       <span className="text-sm text-muted-foreground block">Telefon</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
-                        +49 123 456 78
+                        015214414146
                       </span>
                     </div>
                   </a>

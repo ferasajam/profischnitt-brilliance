@@ -1,0 +1,8 @@
+RewriteEngine On
+# Wenn die Datei oder das Verzeichnis existiert, normal ausliefern
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Alles andere an index.html weiterleiten
+RewriteRule ^ index.html [L]

@@ -60,7 +60,7 @@ export const Footer = () => {
               {[
                 { href: "/", label: "Startseite" },
                 { href: "/team", label: "Unser Team" },
-                { href: "/booking", label: "Termin buchen" },
+                { href: "/leistungen", label: "Leistungen" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -80,11 +80,11 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="tel:+4912345678"
+                  href="tel:015214414146"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   <Phone className="w-4 h-4 text-primary" />
-                  +49 123 456 78
+                  01521 4414146
                 </a>
               </li>
               <li>
@@ -118,7 +118,7 @@ export const Footer = () => {
               </li>
               <li className="flex justify-between text-muted-foreground">
                 <span>Samstag</span>
-                <span className="text-foreground">09:00 - 17:00</span>
+                <span className="text-foreground">09:00 - 19:00</span>
               </li>
               <li className="flex justify-between text-muted-foreground">
                 <span>Sonntag</span>
