@@ -164,6 +164,12 @@ const Index = () => {
             </Button>
           </div>
         </div>
+        {/* Laufender Banner */}
+        <div className="w-full bg-primary/10 border-y border-primary py-2 mt-4 overflow-hidden">
+          <marquee behavior="scroll" direction="left" scrollamount="6" className="text-primary font-semibold text-sm md:text-base px-2 md:px-0">
+            Wir öffnen auch am Samstagen und Montagen. Jetzt Termin sichern!
+          </marquee>
+        </div>
       </section>
 
       {/* Services Section */}

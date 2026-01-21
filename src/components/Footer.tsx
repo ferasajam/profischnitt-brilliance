@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Scissors, Instagram, Music2, Phone, Mail, MapPin } from "lucide-react";
+import { Facebook } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -49,6 +50,16 @@ export const Footer = () => {
                 aria-label="TikTok"
               >
                 <Music2 className="w-5 h-5 text-primary" />
+              </motion.a>
+              <motion.a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1, y: -2 }}
+                className="p-2 rounded-full border border-border hover:border-primary hover:bg-primary/10 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5 text-primary" />
               </motion.a>
             </div>
           </div>
