@@ -18,10 +18,10 @@ export const Footer = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-lg font-semibold tracking-wide text-foreground">
-                  PROFISCHNITT
+                  Diva 
                 </span>
-                <span className="text-[10px] tracking-[0.3em] text-primary uppercase">
-                  Hairstyling
+                <span className="text-[10px] tracking-[0.3em] text-primary">
+                  Haarstudio
                 </span>
               </div>
             </Link>
@@ -61,7 +61,7 @@ export const Footer = () => {
                 { href: "/", label: "Startseite" },
                 { href: "/team", label: "Unser Team" },
                 { href: "/leistungen", label: "Leistungen" },
-              ].map((link) => (
+                ].map((link) => ( 
                 <li key={link.href}>
                   <Link
                     to={link.href}
@@ -71,6 +71,11 @@ export const Footer = () => {
                   </Link>
                 </li>
               ))}
+                <li>
+                  <Link to="/eroeffnungsangebote" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Eröffnungsangebote
+                  </Link>
+                </li>
             </ul>
           </div>
 
@@ -80,20 +85,20 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="tel:015214414146"
+                  href="tel:025161082"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   <Phone className="w-4 h-4 text-primary" />
-                  01521 4414146
+                  02516 1082
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:info@profischnitt.de"
+                  href="mailto:info@diva-haarstudio.de"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   <Mail className="w-4 h-4 text-primary" />
-                  info@profischnitt.de
+                  info@diva-haarstudio.de
                 </a>
               </li>
               <li>
@@ -133,7 +138,7 @@ export const Footer = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} Profischnitt Hairstyling. Alle Rechte vorbehalten.</p>
+            <p>© {currentYear} Diva Haarstudio. Alle Rechte vorbehalten.</p>
             <div className="flex gap-6">
               <Link to="/privacy" className="hover:text-primary transition-colors">
                 Datenschutz

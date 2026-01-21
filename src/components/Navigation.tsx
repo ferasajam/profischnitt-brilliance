@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const navLinks = [
   { href: "/", label: "Startseite" },
   { href: "/leistungen", label: "Leistungen" },
+  { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
   { href: "/team", label: "Team" },
 ];
 
@@ -66,10 +67,10 @@ export const Navigation = () => {
           </motion.div>
           <div className="flex flex-col">
             <span className="font-serif text-lg font-semibold tracking-wide text-foreground">
-              PROFISCHNITT
+              Diva
             </span>
-            <span className="text-[10px] tracking-[0.3em] text-primary uppercase">
-              Hairstyling
+            <span className="text-[10px] tracking-[0.3em] text-primary">
+              Haarstudio
             </span>
           </div>
         </Link>

@@ -83,33 +83,18 @@ export default function Leistungen() {
             </table>
           </div>
         </section>
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-primary mb-4">Angebote für Damen<span className='text-sm text-gold-gradient'>(inkl. 5 € Geschenk)</span></h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-card rounded-xl border border-border">
-              <thead>
-                <tr className="bg-secondary/50">
-                  <th className="py-3 px-4 text-left">Angebot</th>
-                  <th className="py-3 px-4 text-left">Preis</th>
-                </tr>
-              </thead>
-              <tbody>
-                {angebote.map((item) => (
-                  <tr key={item.angebot} className="border-b border-border last:border-0">
-                    <td className="py-2 px-4 text-foreground">{item.angebot}</td>
-                    <td className="py-2 px-4 text-primary font-semibold">{item.preis}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
+        
         {/* Angebote section removed as requested */}
         <div className="text-center mt-10">
-          <Button asChild variant="gold" size="xl">
-            <Link to="/booking">Termin buchen</Link>
-          </Button>
+          <div className="flex flex-col items-center gap-4">
+            <Button asChild variant="gold" size="lg">
+              <Link to="/eroeffnungsangebote">Eröffnungsangebote</Link>
+            </Button>
+            <Button asChild variant="gold" size="xl">
+              <Link to="/booking">Termin buchen</Link>
+            </Button>
+           
+          </div>
         </div>
       </div>
     </div>

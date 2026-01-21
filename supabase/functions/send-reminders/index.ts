@@ -15,7 +15,7 @@ serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = Deno.env.get("MAIL_FROM") ?? "noreply@profischnitt.de";
+  const from = Deno.env.get("MAIL_FROM") ?? "noreply@diva-haarstudio.de";
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 

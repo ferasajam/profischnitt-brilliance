@@ -24,7 +24,7 @@ serve(async (req) => {
   const body = (await req.json()) as Body;
 
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = Deno.env.get("MAIL_FROM") ?? "noreply@profischnitt.de";
+  const from = Deno.env.get("MAIL_FROM") ?? "noreply@diva-haarstudio.de";
 
   const subject = `Terminbestätigung: ${body.booking.service ?? "Friseurtermin"}`;
   const html = `

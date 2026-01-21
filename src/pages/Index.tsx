@@ -71,7 +71,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img
             src={heroImage}
-            alt="Profischnitt Salon Interieur"
+            alt="Diva Haarstudio Salon Interieur"
             className="w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
@@ -91,15 +91,19 @@ const Index = () => {
               </span>
             </motion.div>
 
-            <motion.h1
+            <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-[1.1]"
+              className="mb-6"
             >
-              <span className="text-foreground">PROFI</span>
-              <span className="text-gold-gradient">SCHNITT</span>
-            </motion.h1>
+              <img
+                src="/res/Logo.png"
+                alt="Diva Haarstudio Logo"
+                className="max-w-[320px] md:max-w-[420px] w-[80vw] md:w-full h-auto ml-0 md:mx-0"
+                style={{ display: 'block' }}
+              />
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0, y: 40 }}
@@ -259,7 +263,7 @@ const Index = () => {
                     </div>
                   </a>
                   <a
-                    href="mailto:info@profischnitt.de"
+                    href="mailto:info@diva-haarstudio.de"
                     className="flex items-center gap-4 group"
                   >
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -268,7 +272,7 @@ const Index = () => {
                     <div>
                       <span className="text-sm text-muted-foreground block">E-Mail</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
-                        info@profischnitt.de
+                        info@diva-haarstudio.de
                       </span>
                     </div>
                   </a>
@@ -339,7 +343,7 @@ const Index = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Profischnitt Hairstyling Standort"
+                title="Diva Haarstudio Standort"
                 className="w-full h-64 md:h-96"
               />
               <div className="mt-6 text-center">
