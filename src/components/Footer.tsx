@@ -15,7 +15,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-3 group">
               <div className="p-2 rounded-full border border-primary/50">
-                <Scissors className="w-5 h-5 text-primary" />
+                <img src="/res/Logo2.png" alt="Diva Haarstudio Logo" className="w-12 h-12 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-lg font-semibold tracking-wide text-foreground">

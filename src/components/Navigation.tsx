@@ -61,9 +61,9 @@ export const Navigation = () => {
           <motion.div
             whileHover={{ rotate: 45 }}
             transition={{ duration: 0.3 }}
-            className="p-2 rounded-full border border-primary/50 group-hover:border-primary group-hover:bg-primary/10 transition-colors"
+            className="p-2 rounded-full border border-primary/75 group-hover:border-primary group-hover:bg-primary/10 transition-colors"
           >
-            <Scissors className="w-5 h-5 text-primary" />
+            <img src="/res/Logo2.png" alt="Diva Haarstudio Logo" className="w-12 h-12 object-contain" />
           </motion.div>
           <div className="flex flex-col">
             <span className="font-serif text-lg font-semibold tracking-wide text-foreground">
