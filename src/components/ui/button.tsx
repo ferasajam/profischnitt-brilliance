@@ -12,12 +12,12 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        secondary: "border-2 border-[hsl(0,0%,80%)] bg-[hsl(0,0%,12%)] text-[hsl(0,0%,80%)] hover:bg-[hsl(0,0%,20%)] hover:text-[hsl(0,0%,95%)] font-semibold",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Luxury gold variants
-        gold: "bg-gradient-to-r from-[hsl(43,74%,49%)] to-[hsl(43,80%,65%)] text-[hsl(0,0%,3%)] font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
-        goldOutline: "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground font-semibold",
+        // Luxury silver variants
+        silver: "bg-gradient-to-r from-[hsl(0,0%,80%)] to-[hsl(0,0%,95%)] text-[hsl(0,0%,20%)] font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
+        silverOutline: "border-2 border-[hsl(0,0%,80%)] text-[hsl(0,0%,40%)] bg-transparent hover:bg-[hsl(0,0%,90%)] hover:text-[hsl(0,0%,20%)] font-semibold",
         luxury: "relative overflow-hidden bg-primary text-primary-foreground font-semibold before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
         dark: "bg-secondary text-foreground border border-border hover:border-primary hover:text-primary font-medium",
       },

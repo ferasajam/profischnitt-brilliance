@@ -10,7 +10,8 @@ import {
   Music2,
   Sparkles,
   User,
-  Users
+  Users,
+  Facebook
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
@@ -39,7 +40,7 @@ const services = [
   },
   {
     icon: Sparkles,
-    title: "Waves & Styling",
+    title: "Dauerwelle & Styling",
     description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
     price: "Ab 50€",
   },
@@ -121,10 +122,10 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
               className="flex flex-wrap gap-4"
             >
-              <Button asChild variant="gold" size="xl">
+              <Button asChild variant="silver" size="xl">
                 <Link to="/booking">Termin buchen</Link>
               </Button>
-              <Button asChild variant="goldOutline" size="xl">
+              <Button asChild variant="silverOutline" size="xl">
                 <Link to="/team">Unser Team</Link>
               </Button>
             </motion.div>
@@ -157,9 +158,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="rounded-2xl border border-border bg-card p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-center md:text-left text-sm md:text-base text-foreground">
-              Jetzt registrieren und nach <span className="font-semibold text-primary">{threshold}</span> Punkten einen <span className="text-gold-gradient">Gratis-Haarschnitt</span> erhalten.
+              Jetzt registrieren und nach <span className="font-semibold text-primary">{threshold}</span> Punkten einen <span className="text-silver-gradient">Gratis-Haarschnitt</span> erhalten.
             </p>
-            <Button asChild variant="gold">
+            <Button asChild variant="silver">
               <Link to="/auth?tab=register">Jetzt registrieren</Link>
             </Button>
           </div>
@@ -180,7 +181,9 @@ const Index = () => {
               Unsere Leistungen
             </span>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Premium <span className="text-gold-gradient">Hairstyling</span>
+              Premium <span className="text-silver-gradient" style={{background: 'linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
+                Hairstyling
+              </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Von klassischen Schnitten bis zu modernem Styling bieten wir eine 
@@ -211,7 +214,7 @@ const Index = () => {
           </div>
 
           <AnimatedSection delay={0.4} className="text-center mt-12">
-            <Button asChild variant="goldOutline" size="lg">
+            <Button asChild variant="silverOutline" size="lg">
               <Link to="/leistungen">Alle Leistungen</Link>
             </Button>
           </AnimatedSection>
@@ -309,6 +312,7 @@ const Index = () => {
                     >
                       <Instagram className="w-5 h-5 text-primary" />
                     </motion.a>
+                   
                     <motion.a
                       href="https://tiktok.com"
                       target="_blank"
@@ -318,6 +322,18 @@ const Index = () => {
                       className="p-3 rounded-xl bg-secondary hover:bg-primary/20 border border-border hover:border-primary transition-colors"
                     >
                       <Music2 className="w-5 h-5 text-primary" />
+                    </motion.a>
+
+
+                     <motion.a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-3 rounded-xl bg-secondary hover:bg-primary/20 border border-border hover:border-primary transition-colors"
+                    >
+                      <Facebook className="w-5 h-5 text-primary" />
                     </motion.a>
                   </div>
                 </div>
@@ -332,7 +348,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Besuchen Sie unseren <span className="text-gold-gradient">Salon</span>
+              Besuchen Sie unseren <span className="text-silver-gradient" style={{background: 'linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
+                Salon
+              </span>
             </h2>
             <p className="text-muted-foreground">
               Finden Sie uns im Herzen von Münster-Hiltrup
@@ -366,12 +384,12 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center max-w-3xl mx-auto">
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Bereit für eine <span className="text-gold-gradient">Verwandlung</span>?
+              Bereit für eine <span className="text-silver-gradient">Verwandlung</span>?
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
               Buchen Sie noch heute Ihren Termin und erleben Sie die Kunst des Premium Hairstylings.
             </p>
-            <Button asChild variant="gold" size="xl">
+            <Button asChild variant="silver" size="xl">
               <Link to="/booking">Jetzt Termin buchen</Link>
             </Button>
           </AnimatedSection>

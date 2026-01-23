@@ -58,13 +58,13 @@ export const Navigation = () => {
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <motion.div
+          <motion.img
+            src="/res/Logo2.png"
+            alt="Diva Haarstudio Logo"
+            className="w-14 h-14 rounded-full object-contain shadow-md border-2 border-primary/80 bg-black"
             whileHover={{ rotate: 45 }}
             transition={{ duration: 0.3 }}
-            className="p-2 rounded-full border border-primary/75 group-hover:border-primary group-hover:bg-primary/10 transition-colors"
-          >
-            <img src="/res/Logo2.png" alt="Diva Haarstudio Logo" className="w-12 h-12 object-contain" />
-          </motion.div>
+          />
           <div className="flex flex-col">
             <span className="font-serif text-lg font-semibold tracking-wide text-foreground">
               Diva
@@ -108,21 +108,21 @@ export const Navigation = () => {
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
           {(isAdmin || isStaff) && (
-            <Button asChild variant="gold" size="lg">
+            <Button asChild variant="silver" size="lg">
               <Link to="/admin">Admin</Link>
             </Button>
           )}
           {user ? null : (
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="secondary" size="lg">
               <Link to="/auth">Anmelden</Link>
             </Button>
           )}
           {!user && (
-            <Button asChild variant="goldOutline" size="lg">
+            <Button asChild variant="silverOutline" size="lg">
               <Link to="/auth?tab=register">Registrieren</Link>
             </Button>
           )}
-          <Button asChild variant="gold" size="lg">
+          <Button asChild variant="silver" size="lg">
             <Link to="/booking">Termin buchen</Link>
           </Button>
           {user && (
@@ -193,7 +193,7 @@ export const Navigation = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Button asChild variant="gold" className="w-full mt-4">
+                <Button asChild variant="silver" className="w-full mt-4">
                   <Link to="/booking" onClick={() => setIsOpen(false)}>
                     Termin buchen
                   </Link>
@@ -205,13 +205,13 @@ export const Navigation = () => {
                 transition={{ delay: 0.32 }}
               >
                 {user ? (
-                  <Button asChild variant="outline" className="w-full mt-2">
+                  <Button asChild variant="secondary" className="w-full mt-2">
                     <Link to="/profile" onClick={() => setIsOpen(false)}>
                       Profil
                     </Link>
                   </Button>
                 ) : (
-                  <Button asChild variant="outline" className="w-full mt-2">
+                  <Button asChild variant="secondary" className="w-full mt-2">
                     <Link to="/auth" onClick={() => setIsOpen(false)}>
                       Anmelden
                     </Link>
@@ -224,7 +224,7 @@ export const Navigation = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.34 }}
                 >
-                  <Button asChild variant="ghost" className="w-full mt-1">
+                  <Button asChild variant="silverOutline" className="w-full mt-1">
                     <Link to="/auth?tab=register" onClick={() => setIsOpen(false)}>
                       Registrieren
                     </Link>
@@ -237,7 +237,7 @@ export const Navigation = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 }}
                 >
-                  <Button asChild variant="outline" className="w-full mt-2">
+                  <Button asChild variant="silver" className="w-full mt-2">
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
                       Admin
                     </Link>
@@ -251,7 +251,7 @@ export const Navigation = () => {
                   transition={{ delay: 0.36 }}
                 >
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     className="w-full mt-2"
                     onClick={async () => { await signOut(); setIsOpen(false); navigate('/'); }}
                   >

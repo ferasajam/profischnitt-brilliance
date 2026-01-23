@@ -15,43 +15,43 @@
 
 @layer base {
   :root {
-    /* Core palette - Luxury Black & Gold */
+    /* Core palette - Luxury Black & Silver */
     --background: 0 0% 3%;
-    --foreground: 43 100% 90%;
+    --foreground: 0 0% 90%;
 
     --card: 0 0% 6%;
-    --card-foreground: 43 100% 90%;
+    --card-foreground: 0 0% 90%;
 
     --popover: 0 0% 6%;
-    --popover-foreground: 43 100% 90%;
+    --popover-foreground: 0 0% 90%;
 
-    /* Gold accent colors */
-    --primary: 43 74% 49%;
-    --primary-foreground: 0 0% 3%;
+    /* Silver accent colors */
+    --primary: 0 0% 80%;
+    --primary-foreground: 0 0% 15%;
 
     --secondary: 0 0% 12%;
-    --secondary-foreground: 43 100% 90%;
+    --secondary-foreground: 0 0% 90%;
 
     --muted: 0 0% 15%;
-    --muted-foreground: 43 20% 60%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 43 74% 49%;
-    --accent-foreground: 0 0% 3%;
+    --accent: 0 0% 80%;
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 43 30% 20%;
+    --border: 0 0% 40%;
     --input: 0 0% 15%;
-    --ring: 43 74% 49%;
+    --ring: 0 0% 80%;
 
     --radius: 0.5rem;
 
     /* Custom luxury tokens */
-    --gold: 43 74% 49%;
-    --gold-light: 43 80% 65%;
-    --gold-dark: 43 70% 35%;
-    --gold-muted: 43 30% 25%;
+    --silver: 0 0% 80%;
+    --silver-light: 0 0% 95%;
+    --silver-dark: 0 0% 60%;
+    --silver-muted: 0 0% 70%;
     
     --black-pure: 0 0% 0%;
     --black-soft: 0 0% 3%;
@@ -59,25 +59,25 @@
     --black-elevated: 0 0% 10%;
 
     /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(43 74% 49%), hsl(43 80% 65%));
-    --gradient-gold-shimmer: linear-gradient(90deg, hsl(43 74% 49%), hsl(43 90% 70%), hsl(43 74% 49%));
+    --gradient-silver: linear-gradient(135deg, hsl(0 0% 80%), hsl(0 0% 95%));
+    --gradient-silver-shimmer: linear-gradient(90deg, hsl(0 0% 80%), hsl(0 0% 98%), hsl(0 0% 80%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 0%));
-    --gradient-radial-gold: radial-gradient(circle at 50% 0%, hsl(43 74% 49% / 0.15), transparent 50%);
+    --gradient-radial-silver: radial-gradient(circle at 50% 0%, hsl(0 0% 80% / 0.15), transparent 50%);
 
     /* Shadows */
-    --shadow-gold: 0 4px 30px -5px hsl(43 74% 49% / 0.3);
-    --shadow-gold-lg: 0 10px 50px -10px hsl(43 74% 49% / 0.4);
+    --shadow-silver: 0 4px 30px -5px hsl(0 0% 80% / 0.3);
+    --shadow-silver-lg: 0 10px 50px -10px hsl(0 0% 80% / 0.4);
     --shadow-elevated: 0 20px 40px -15px hsl(0 0% 0% / 0.5);
 
     /* Sidebar (dark variant) */
     --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 43 100% 90%;
-    --sidebar-primary: 43 74% 49%;
-    --sidebar-primary-foreground: 0 0% 3%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 0% 80%;
+    --sidebar-primary-foreground: 0 0% 15%;
     --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 43 100% 90%;
-    --sidebar-border: 43 30% 15%;
-    --sidebar-ring: 43 74% 49%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 40%;
+    --sidebar-ring: 0 0% 80%;
   }
 
   .dark {
@@ -105,17 +105,17 @@
     font-family: 'Playfair Display', serif;
   }
 
-  /* Gold text gradient utility */
-  .text-gold-gradient {
-    background: var(--gradient-gold);
+  /* Silver text gradient utility */
+  .text-silver-gradient {
+    background: var(--gradient-silver);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Gold shimmer animation */
-  .shimmer-gold {
-    background: var(--gradient-gold-shimmer);
+  /* Silver shimmer animation */
+  .shimmer-silver {
+    background: var(--gradient-silver-shimmer);
     background-size: 200% 100%;
     animation: shimmer 3s ease-in-out infinite;
   }
@@ -128,16 +128,16 @@
   /* Luxury divider */
   .luxury-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.5), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--silver) / 0.5), transparent);
   }
 
-  /* Gold glow effect */
-  .glow-gold {
-    box-shadow: var(--shadow-gold);
+  /* Silver glow effect */
+  .glow-silver {
+    box-shadow: var(--shadow-silver);
   }
 
-  .glow-gold-lg {
-    box-shadow: var(--shadow-gold-lg);
+  .glow-silver-lg {
+    box-shadow: var(--shadow-silver-lg);
   }
 
   /* Smooth reveal animation */
@@ -178,7 +178,7 @@
   .btn-luxury::before {
     content: '';
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: var(--gradient-gold-shimmer);
+    background: var(--gradient-silver-shimmer);
     background-size: 200% 100%;
   }
 
@@ -194,6 +194,6 @@
 
   .card-luxury:hover {
     @apply -translate-y-2;
-    box-shadow: var(--shadow-gold);
+    box-shadow: var(--shadow-silver);
   }
 }
