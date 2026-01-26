@@ -1,45 +1,50 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { 
-  Scissors, 
-  Clock, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Instagram, 
+import {
+  Scissors,
+  Clock,
+  Phone,
+  Mail,
+  MapPin,
+  Instagram,
   Music2,
   Sparkles,
   User,
   Users,
-  Facebook
+  Facebook,
 } from "lucide-react";
+import herrenhaarschnittImg from "@/assets/Herrenhaarschnitt.png";
+import damenhaarschnittImg from "@/assets/Damenhaarschnitt.png";
+import bartpflegeImg from "@/assets/Bartpflege.png";
+import wavesImg from "@/assets/waves.png";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
-import heroImage from "@/assets/hero-salon.jpg";
+import heroImage from "@/assets/hero-salon.png";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const services = [
   {
-    icon: User,
+    image: herrenhaarschnittImg,
     title: "Herrenhaarschnitt",
-    description: "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
+    description:
+      "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
     price: "Ab 21€",
   },
   {
-    icon: Users,
+    image: damenhaarschnittImg,
     title: "Damenhaarschnitt",
     description: "Elegante Schnitte und Styling für jeden Anlass",
     price: "Ab 35€",
   },
   {
-    icon: Scissors,
+    image: bartpflegeImg,
     title: "Bartpflege",
     description: "Professionelle Bartformung, Trimmen und Heißtuchbehandlungen",
     price: "Ab 13€",
   },
   {
-    icon: Sparkles,
+    image: wavesImg,
     title: "Dauerwelle & Styling",
     description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
     price: "Ab 50€",
@@ -57,13 +62,23 @@ const Index = () => {
 
   useEffect(() => {
     (async () => {
-      type UnknownBuilder = { select: (q: string) => UnknownBuilder; eq: (c: string, v: unknown) => UnknownBuilder; maybeSingle: () => Promise<unknown> };
-      const builder = (supabase as unknown as { from: (t: string) => UnknownBuilder }).from('app_settings');
-      const res = await builder.select('value').eq('key','loyalty_threshold').maybeSingle() as { data?: { value?: string } };
+      type UnknownBuilder = {
+        select: (q: string) => UnknownBuilder;
+        eq: (c: string, v: unknown) => UnknownBuilder;
+        maybeSingle: () => Promise<unknown>;
+      };
+      const builder = (supabase as unknown as { from: (t: string) => UnknownBuilder }).from(
+        "app_settings"
+      );
+      const res = (await builder
+        .select("value")
+        .eq("key", "loyalty_threshold")
+        .maybeSingle()) as { data?: { value?: string } };
       const v = Number(res?.data?.value);
       setThreshold(Number.isFinite(v) && v > 0 ? v : 10);
     })();
   }, []);
+
   return (
     <div className="bg-background">
       {/* Hero Section */}
@@ -80,17 +95,13 @@ const Index = () => {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 -mt-0 md:-mt-26 flex justify-center items-center min-h-[90vh]">
           <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <span className="inline-block px-4 py-2 rounded-full border border-primary/30 text-primary text-sm font-medium mb-6 backdrop-blur-sm">
-                Premium Hairstyling in Münster
-              </span>
-            </motion.div>
+            ></motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -102,19 +113,42 @@ const Index = () => {
                 src="/res/Logo.png"
                 alt="Diva Haarstudio Logo"
                 className="max-w-[320px] md:max-w-[420px] w-[80vw] md:w-full h-auto ml-0 md:mx-0"
-                style={{ display: 'block' }}
+                style={{ display: "block" }}
               />
             </motion.div>
 
-            <motion.p
+            {/* Professionell strukturierter Text */}
+            <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl"
+              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl space-y-5"
             >
-              Wo Handwerkskunst auf Präzision trifft. Erleben Sie premium 
-              Hairstyling für Damen und Herren in einer Atmosphäre purer Eleganz.
-            </motion.p>
+              <p className="font-medium text-foreground">
+                Willkommen in unserem modernen Damen- & Herrenfriseursalon
+              </p>
+
+              <p>
+                Schönheit, Stil und Wohlbefinden unter einem Dach. Unser Salon steht für
+                professionelle Haarschnitte, moderne Farbtechniken und individuelle
+                Beratung – für Damen und Herren.
+              </p>
+
+              <p>
+                Ob klassisch, elegant oder trendig – wir unterstreichen Ihre Persönlichkeit
+                mit dem passenden Look. Bei uns treffen Qualität, Hygiene und eine
+                entspannte Atmosphäre aufeinander.
+              </p>
+
+              <p className="text-foreground">
+                ✨ <span className="font-semibold">Ihr Stil. Ihre Ausstrahlung. Unsere Leidenschaft.</span>
+                <br />
+                <span className="text-muted-foreground">
+                  Unser Motto: <span className="font-semibold">Dein Haar … deine Krone</span> 👑 – wir
+                  bringen es zum Strahlen!
+                </span>
+              </p>
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -131,46 +165,35 @@ const Index = () => {
             </motion.div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2"
-          >
-            <motion.div
-              animate={{ opacity: [1, 0, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1 h-2 bg-primary rounded-full"
-            />
-          </motion.div>
-        </motion.div>
+        {/* Scroll Indicator entfernt */}
       </section>
 
+      {/* Laufender Banner */}
+        <div className="w-full bg-primary/10 border-y border-primary py-2 mt-4 overflow-hidden">
+          <marquee
+            behavior="scroll"
+            direction="left"
+            scrollamount="6"
+            className="text-primary font-semibold text-sm md:text-base px-2 md:px-0"
+          >
+            Wir öffnen auch am Samstagen und Montagen. Jetzt Termin sichern!
+          </marquee>
+        </div>
       {/* CTA Banner for Loyalty */}
       <section className="py-6">
         <div className="container mx-auto px-4">
           <div className="rounded-2xl border border-border bg-card p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-center md:text-left text-sm md:text-base text-foreground">
-              Jetzt registrieren und nach <span className="font-semibold text-primary">{threshold}</span> Punkten einen <span className="text-silver-gradient">Gratis-Haarschnitt</span> erhalten.
+              Jetzt registrieren und nach{" "}
+              <span className="font-semibold text-primary">{threshold}</span> Punkten einen{" "}
+              <span className="text-silver-gradient">Gratis-Haarschnitt</span> erhalten.
             </p>
             <Button asChild variant="silver">
               <Link to="/auth?tab=register">Jetzt registrieren</Link>
             </Button>
           </div>
         </div>
-        {/* Laufender Banner */}
-        <div className="w-full bg-primary/10 border-y border-primary py-2 mt-4 overflow-hidden">
-          <marquee behavior="scroll" direction="left" scrollamount="6" className="text-primary font-semibold text-sm md:text-base px-2 md:px-0">
-            Wir öffnen auch am Samstagen und Montagen. Jetzt Termin sichern!
-          </marquee>
-        </div>
+        
       </section>
 
       {/* Services Section */}
@@ -181,13 +204,22 @@ const Index = () => {
               Unsere Leistungen
             </span>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Premium <span className="text-silver-gradient" style={{background: 'linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
+              Premium{" "}
+              <span
+                className="text-silver-gradient"
+                style={{
+                  background: "linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
                 Hairstyling
               </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Von klassischen Schnitten bis zu modernem Styling bieten wir eine 
-              komplette Palette an Premium-Services für Damen und Herren.
+              Von klassischen Schnitten bis zu modernem Styling bieten wir eine komplette
+              Palette an Premium-Services für Damen und Herren.
             </p>
           </AnimatedSection>
 
@@ -196,15 +228,25 @@ const Index = () => {
               <AnimatedSection key={service.title} delay={index * 0.1}>
                 <motion.div
                   whileHover={{ y: -8 }}
-                  className="group p-8 rounded-2xl bg-secondary/50 border border-border hover:border-primary/50 transition-all duration-500"
+                  className="group p-8 rounded-2xl bg-secondary/50 border border-border hover:border-primary/50 transition-all duration-500 flex flex-col items-center"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                    <service.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
+                  {service.image ? (
+                    <img
+                      src={service.image}
+                      alt={service.title}
+                      className="w-full h-48 object-cover rounded-xl shadow-lg mb-6 border border-border"
+                      style={{ maxWidth: "100%", objectPosition: "center" }}
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors overflow-hidden">
+                      {/* @ts-expect-error icon is optional */}
+                      {service.icon && <service.icon className="w-7 h-7 text-primary" />}
+                    </div>
+                  )}
+                  <h3 className="font-serif text-xl font-semibold text-foreground mb-3 text-center">
                     {service.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm mb-4">
+                  <p className="text-muted-foreground text-sm mb-4 text-center">
                     {service.description}
                   </p>
                   <span className="text-primary font-semibold">{service.price}</span>
@@ -257,15 +299,23 @@ const Index = () => {
                   Kontaktieren Sie uns
                 </h3>
                 <div className="space-y-6">
-                  <a
-                    href="tel:+4912345678"
-                    className="flex items-center gap-4 group"
-                  >
+                  <a href="tel:025161082" className="flex items-center gap-4 group">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                       <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground block">Telefon</span>
+                      <span className="text-sm text-muted-foreground block">Telefon (Festnetz)</span>
+                      <span className="text-foreground font-medium group-hover:text-primary transition-colors">
+                        025161082
+                      </span>
+                    </div>
+                  </a>
+                  <a href="tel:015214414146" className="flex items-center gap-4 group">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Phone className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="text-sm text-muted-foreground block">Mobilnummer</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
                         015214414146
                       </span>
@@ -300,7 +350,9 @@ const Index = () => {
 
                 {/* Social Links */}
                 <div className="mt-8 pt-8 border-t border-border">
-                  <span className="text-sm text-muted-foreground mb-4 block">Folgen Sie uns</span>
+                  <span className="text-sm text-muted-foreground mb-4 block">
+                    Folgen Sie uns
+                  </span>
                   <div className="flex gap-4">
                     <motion.a
                       href="https://instagram.com"
@@ -312,7 +364,7 @@ const Index = () => {
                     >
                       <Instagram className="w-5 h-5 text-primary" />
                     </motion.a>
-                   
+
                     <motion.a
                       href="https://tiktok.com"
                       target="_blank"
@@ -324,8 +376,7 @@ const Index = () => {
                       <Music2 className="w-5 h-5 text-primary" />
                     </motion.a>
 
-
-                     <motion.a
+                    <motion.a
                       href="https://facebook.com"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -348,13 +399,20 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Besuchen Sie unseren <span className="text-silver-gradient" style={{background: 'linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
+              Besuchen Sie unseren{" "}
+              <span
+                className="text-silver-gradient"
+                style={{
+                  background: "linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
                 Salon
               </span>
             </h2>
-            <p className="text-muted-foreground">
-              Finden Sie uns im Herzen von Münster-Hiltrup
-            </p>
+            <p className="text-muted-foreground">Finden Sie uns im Herzen von Münster-Hiltrup</p>
           </AnimatedSection>
 
           <AnimatedSection>
@@ -371,7 +429,9 @@ const Index = () => {
                 className="w-full h-64 md:h-96"
               />
               <div className="mt-6 text-center">
-                <span className="text-foreground font-medium text-lg">Zum Erlenbusch 13, 48167 Münster</span>
+                <span className="text-foreground font-medium text-lg">
+                  Zum Erlenbusch 13, 48167 Münster
+                </span>
               </div>
             </div>
           </AnimatedSection>
@@ -387,7 +447,8 @@ const Index = () => {
               Bereit für eine <span className="text-silver-gradient">Verwandlung</span>?
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Buchen Sie noch heute Ihren Termin und erleben Sie die Kunst des Premium Hairstylings.
+              Buchen Sie noch heute Ihren Termin und erleben Sie die Kunst des Premium
+              Hairstylings.
             </p>
             <Button asChild variant="silver" size="xl">
               <Link to="/booking">Jetzt Termin buchen</Link>

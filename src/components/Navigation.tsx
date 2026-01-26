@@ -56,23 +56,13 @@ export const Navigation = () => {
       className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50"
     >
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <motion.img
-            src="/res/Logo2.png"
+        {/* Logo ersetzt durch nur das Bild */}
+        <Link to="/">
+          <img
+            src="/res/Logo.png"
             alt="Diva Haarstudio Logo"
-            className="w-14 h-14 rounded-full object-contain shadow-md border-2 border-primary/80 bg-black"
-            whileHover={{ rotate: 45 }}
-            transition={{ duration: 0.3 }}
+            className="w-28 h-14"
           />
-          <div className="flex flex-col">
-            <span className="font-serif text-lg font-semibold tracking-wide text-foreground">
-              Diva
-            </span>
-            <span className="text-[10px] tracking-[0.3em] text-primary">
-              Haarstudio
-            </span>
-          </div>
         </Link>
 
         {/* Desktop Navigation */}

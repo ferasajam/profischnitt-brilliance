@@ -147,14 +147,13 @@ export default function Leistungen() {
 
         {/* Angebote section removed as requested */}
         <div className="text-center mt-10">
-          <div className="flex flex-col items-center gap-4">
-            <Button asChild variant="gold" size="lg">
-              <Link to="/eroeffnungsangebote">Eröffnungsangebote</Link>
-            </Button>
-            <Button asChild variant="gold" size="xl">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <Button asChild variant="silver" size="xl">
               <Link to="/booking">Termin buchen</Link>
             </Button>
-           
+            <Button asChild variant="silverOutline" size="xl">
+              <Link to="/eroeffnungsangebote">Eröffnungsangebote</Link>
+            </Button>
           </div>
         </div>
       </div>

@@ -664,8 +664,8 @@ const Booking = () => {
                     </div>
                     <Button
                       type="submit"
-                      variant="gold"
-                      size="lg"
+                      variant="silver"
+                      size="xl"
                       className="w-full"
                     >
                       Termin bestätigen
@@ -717,7 +717,9 @@ const Booking = () => {
                   </div>
                   <div>
                     <Button
-                      variant="goldOutline"
+                      variant="silverOutline"
+                      size="xl"
+                      className="w-full"
                       onClick={() => {
                         setStep("gender");
                         setGender(null);
