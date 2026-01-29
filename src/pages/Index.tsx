@@ -141,10 +141,10 @@ const Index = () => {
               </p>
 
               <p className="text-muted-foreground">
-                ✨ <span className="font-semibold">Ihr Stil. Ihre Ausstrahlung. Unsere Leidenschaft.</span>
+                 <span className="font-semibold">Ihr Stil. Ihre Ausstrahlung. Unsere Leidenschaft.</span>
                 <br />
                 <span className="text-foreground">
-                  Unser Motto: <span className="font-semibold">Dein Haar … deine Krone</span> 👑 – wir
+                  Unser Motto: <span className="font-semibold">Dein Haar … deine Krone</span>  – wir
                   bringen es zum Strahlen!
                 </span>
               </p>

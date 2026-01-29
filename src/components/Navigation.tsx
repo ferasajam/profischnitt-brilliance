@@ -62,7 +62,7 @@ export const Navigation = () => {
     >
       <nav className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* LOGO + MOTTO */}
-        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
+        <Link to="/" className="flex items-center gap-6 flex-1 min-w-0">
           <img
             src="/res/Logo.png"
             alt="Diva Haarstudio Logo"
@@ -73,19 +73,19 @@ export const Navigation = () => {
           <div className="flex flex-col justify-center min-w-0 mt-2 sm:mt-0">
             {/* MOBILE */}
             <span
-              className="sm:hidden text-base text-foreground/80 leading-tight break-words max-w-[320px]"
+              className="sm:hidden text-2xl text-foreground/80 leading-tight break-words min-w-[320px]"
               style={{
                 fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                 letterSpacing: "0.03em",
               }}
             >
-              Dein Haar<br />deine Krone 👑
+              Dein Haar<br />deine Krone 
             </span>
 
             {/* DESKTOP / TABLET */}
             <div className="hidden sm:flex flex-col border-l border-border/60 pl-3">
               <span
-                className="text-xl text-foreground/70"
+                className="text-2xl text-foreground/70 min-w-[320px] break-words"
                 style={{
                   fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                   letterSpacing: "0.04em",
@@ -94,13 +94,13 @@ export const Navigation = () => {
                 Dein Haar
               </span>
               <span
-                className="text-2xl text-primary"
+                className="text-3xl text-primary min-w-[320px] break-words"
                 style={{
                   fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                   letterSpacing: "0.05em",
                 }}
               >
-                deine Krone 👑
+                deine Krone 
               </span>
             </div>
           </div>

@@ -14,7 +14,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             {/* Logo + Motto */}
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-6">
               <img
                 src="/res/Logo.png"
                 alt="Diva Haarstudio Logo"
@@ -25,19 +25,19 @@ export const Footer = () => {
               <div className="flex flex-col justify-center min-w-0 mt-2 sm:mt-0">
                 {/* MOBILE */}
                 <span
-                  className="sm:hidden text-base text-muted-foreground leading-tight"
+                  className="sm:hidden text-xl text-muted-foreground leading-tight"
                   style={{
                     fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                     letterSpacing: "0.03em",
                   }}
                 >
-                  Dein Haar<br />deine Krone 👑
+                  Dein Haar<br />deine Krone
                 </span>
 
                 {/* DESKTOP */}
                 <div className="hidden sm:flex flex-col border-l border-border/60 pl-3">
                   <span
-                    className="text-xl text-muted-foreground"
+                    className="text-2xl text-muted-foreground min-w-[320px] break-words"
                     style={{
                       fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                       letterSpacing: "0.04em",
@@ -46,13 +46,13 @@ export const Footer = () => {
                     Dein Haar
                   </span>
                   <span
-                    className="text-2xl text-primary min-w-[320px] break-words"
+                    className="text-3xl text-primary min-w-[320px] break-words"
                     style={{
                       fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                       letterSpacing: "0.05em",
                     }}
                   >
-                    deine Krone 👑
+                    deine Krone 
                   </span>
                 </div>
               </div>
