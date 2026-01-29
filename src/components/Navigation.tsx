@@ -66,14 +66,14 @@ export const Navigation = () => {
           <img
             src="/res/Logo.png"
             alt="Diva Haarstudio Logo"
-            className="w-24 sm:w-28 h-14 object-contain shrink-0"
+            className="w-32 sm:w-40 h-20 sm:h-24 object-contain shrink-0"
           />
 
           {/* MOTTO */}
           <div className="flex flex-col justify-center min-w-0 mt-2 sm:mt-0">
             {/* MOBILE */}
             <span
-              className="sm:hidden text-xs text-foreground/80 leading-tight break-words max-w-[180px]"
+              className="sm:hidden text-base text-foreground/80 leading-tight break-words max-w-[320px]"
               style={{
                 fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                 letterSpacing: "0.03em",
@@ -85,7 +85,7 @@ export const Navigation = () => {
             {/* DESKTOP / TABLET */}
             <div className="hidden sm:flex flex-col border-l border-border/60 pl-3">
               <span
-                className="text-sm text-foreground/70"
+                className="text-xl text-foreground/70"
                 style={{
                   fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                   letterSpacing: "0.04em",
@@ -94,7 +94,7 @@ export const Navigation = () => {
                 Dein Haar
               </span>
               <span
-                className="text-lg text-primary"
+                className="text-2xl text-primary"
                 style={{
                   fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                   letterSpacing: "0.05em",

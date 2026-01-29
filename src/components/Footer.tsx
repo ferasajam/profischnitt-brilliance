@@ -18,14 +18,14 @@ export const Footer = () => {
               <img
                 src="/res/Logo.png"
                 alt="Diva Haarstudio Logo"
-                className="w-28 h-14 object-contain shrink-0"
+                className="w-32 sm:w-40 h-20 sm:h-24 object-contain shrink-0"
               />
 
               {/* MOTTO */}
               <div className="flex flex-col justify-center min-w-0 mt-2 sm:mt-0">
                 {/* MOBILE */}
                 <span
-                  className="sm:hidden text-xs text-muted-foreground leading-tight"
+                  className="sm:hidden text-base text-muted-foreground leading-tight"
                   style={{
                     fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                     letterSpacing: "0.03em",
@@ -35,15 +35,26 @@ export const Footer = () => {
                 </span>
 
                 {/* DESKTOP */}
-                <span
-                  className="hidden sm:block text-sm text-muted-foreground"
-                  style={{
-                    fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  Dein Haar – deine Krone 👑
-                </span>
+                <div className="hidden sm:flex flex-col border-l border-border/60 pl-3">
+                  <span
+                    className="text-xl text-muted-foreground"
+                    style={{
+                      fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    Dein Haar
+                  </span>
+                  <span
+                    className="text-2xl text-primary"
+                    style={{
+                      fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    deine Krone 👑
+                  </span>
+                </div>
               </div>
             </Link>
 
