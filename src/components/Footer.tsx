@@ -46,7 +46,7 @@ export const Footer = () => {
                     Dein Haar
                   </span>
                   <span
-                    className="text-2xl text-primary"
+                    className="text-2xl text-primary min-w-[320px] break-words"
                     style={{
                       fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
                       letterSpacing: "0.05em",
