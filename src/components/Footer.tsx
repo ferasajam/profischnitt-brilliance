@@ -65,7 +65,7 @@ export const Footer = () => {
             {/* Social Links */}
             <div className="flex gap-4 pt-2">
               <motion.a
-                href="https://instagram.com"
+                href="https://www.instagram.com/diva_haar_studio?igsh=MWcweXU1anp2aXFqYw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -75,7 +75,7 @@ export const Footer = () => {
               </motion.a>
 
               <motion.a
-                href="https://tiktok.com"
+                href="https://www.tiktok.com/@divahaarstudio?_r=1&_t=ZG-93YeYIE19iy"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
@@ -85,7 +85,7 @@ export const Footer = () => {
               </motion.a>
 
               <motion.a
-                href="https://facebook.com"
+                href="https://www.facebook.com/share/1AXdeye6CK/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}

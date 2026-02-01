@@ -567,15 +567,22 @@ const Booking = () => {
                       animate={{ opacity: 1 }}
                       className="pt-4"
                     >
-                      <Button
-                        variant="gold"
-                        size="lg"
-                        className="w-full"
-                        onClick={nextStep}
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
                       >
-                        Weiter
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
+                        <Button
+                          variant="silver"
+                          size="xl"
+                          className="w-full shadow-lg"
+                          onClick={nextStep}
+                        >
+                          <span className="flex items-center gap-2 justify-center w-full">
+                            <ChevronRight className="w-5 h-5" />
+                            <span>Weiter</span>
+                          </span>
+                        </Button>
+                      </motion.div>
                     </motion.div>
                   )}
                 </motion.div>

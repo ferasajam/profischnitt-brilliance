@@ -295,9 +295,17 @@ const Team = () => {
               Wählen Sie den Künstler, der zu Ihrer Stilvorstellung passt, und buchen Sie
               noch heute Ihren Termin.
             </p>
-            <Button asChild variant="gold" size="xl">
-              <Link to="/booking">Termin buchen</Link>
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button asChild variant="silver" size="xl" className="shadow-lg">
+                <Link to="/booking" className="flex items-center gap-2">
+                  <Scissors className="w-5 h-5" />
+                  <span>Termin buchen</span>
+                </Link>
+              </Button>
+            </motion.div>
           </AnimatedSection>
         </div>
       </section>

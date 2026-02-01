@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Scissors,
@@ -12,6 +12,7 @@ import {
   User,
   Users,
   Facebook,
+  X,
 } from "lucide-react";
 import herrenhaarschnittImg from "@/assets/Herrenhaarschnitt.png";
 import damenhaarschnittImg from "@/assets/Damenhaarschnitt.png";
@@ -20,8 +21,34 @@ import wavesImg from "@/assets/waves.png";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import heroImage from "@/assets/hero-salon.png";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+const BOOKING_POPUP_STORAGE_KEY = "marketing_booking_popup_suppress_until";
+const BOOKING_POPUP_SCROLL_THRESHOLD = 0.3; // 30% (akzeptabler Bereich: 25–35%)
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const BOOKING_POPUP_CLOSE_DAYS = 14;
+const BOOKING_POPUP_CTA_DAYS = 30;
+
+const heroContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.18,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const heroItem = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7 },
+  },
+};
 
 const services = [
   {
@@ -57,8 +84,265 @@ const openingHours = [
   { day: "Sonntag", hours: "Geschlossen" },
 ];
 
+type BookingPopupController = {
+  isOpen: boolean;
+  close: () => void;
+  onCtaClick: () => void;
+};
+
+const useBookingMarketingPopup = (): BookingPopupController => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [suppressUntil, setSuppressUntil] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem(BOOKING_POPUP_STORAGE_KEY);
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const hasFiredRef = useRef(false);
+
+  const suppressForDays = useCallback((days: number) => {
+    const until = Date.now() + days * MS_PER_DAY;
+    setSuppressUntil(until);
+    try {
+      localStorage.setItem(BOOKING_POPUP_STORAGE_KEY, String(until));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    suppressForDays(BOOKING_POPUP_CLOSE_DAYS);
+  }, [suppressForDays]);
+
+  const onCtaClick = useCallback(() => {
+    suppressForDays(BOOKING_POPUP_CTA_DAYS);
+    setIsOpen(false);
+  }, [suppressForDays]);
+
+  // Trigger (Option A – Scroll): show popup after real interaction (scroll >= 30%)
+  useEffect(() => {
+    const onScroll = () => {
+      if (hasFiredRef.current) return;
+      if (isOpen) return;
+      if (suppressUntil && Date.now() < suppressUntil) return;
+
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+
+      const scrollTop = window.scrollY ?? doc.scrollTop;
+      const progress = Math.max(0, Math.min(1, scrollTop / scrollable));
+
+      if (progress >= BOOKING_POPUP_SCROLL_THRESHOLD) {
+        hasFiredRef.current = true; // only once per page view
+        setIsOpen(true);
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isOpen, suppressUntil]);
+
+  // UX: ESC closes
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, close]);
+
+  return { isOpen, close, onCtaClick };
+};
+
+type BookingMarketingPopupProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCtaClick: () => void;
+};
+
+const BookingMarketingPopup = ({ isOpen, onClose, onCtaClick }: BookingMarketingPopupProps) => {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // focus for quick ESC/tab access (a11y)
+    closeButtonRef.current?.focus();
+  }, [isOpen]);
+
+  return (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4"
+          style={{ perspective: 1000 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={onClose}
+        >
+          {/* Backdrop with animated blur */}
+          <motion.div
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            initial={{ backdropFilter: "blur(0px)" }}
+            animate={{ backdropFilter: "blur(8px)" }}
+            exit={{ backdropFilter: "blur(0px)" }}
+          />
+
+          {/* Modal Card */}
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Terminbuchung"
+            style={{ transformStyle: "preserve-3d" }}
+            initial={{ opacity: 0, y: 60, scale: 0.9, rotateX: -10 }}
+            animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+            exit={{ opacity: 0, y: 40, scale: 0.95 }}
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 300,
+              mass: 0.8,
+            }}
+            className="relative w-full max-w-lg mx-auto rounded-3xl border border-primary/20 bg-gradient-to-br from-card via-card to-secondary/30 p-6 md:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Decorative gradient orbs */}
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Close Button */}
+            <motion.button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Schließen"
+              className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-secondary/80 hover:bg-secondary border border-border hover:border-primary/50 transition-all duration-200"
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </motion.button>
+
+            {/* Content */}
+            <div className="relative z-10">
+              {/* Icon Badge */}
+              <motion.div
+                className="mb-5 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                <Sparkles className="w-7 h-7 text-primary" />
+              </motion.div>
+
+              {/* Headline */}
+              <motion.h3
+                className="font-serif text-2xl md:text-3xl font-bold text-foreground pr-12 leading-tight"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                Bereit für deinen{" "}
+                <span
+                  className="text-transparent bg-clip-text"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #bcbcbc 0%, #e0e0e0 50%, #bcbcbc 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  neuen Look
+                </span>
+                ?
+              </motion.h3>
+
+              {/* Description */}
+              <motion.p
+                className="mt-3 text-muted-foreground text-base md:text-lg leading-relaxed"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                Sichere dir jetzt deinen Wunschtermin – schnell & unkompliziert online buchen.
+              </motion.p>
+
+              {/* Features */}
+              <motion.div
+                className="mt-5 flex flex-wrap gap-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+              >
+                {[
+                  { icon: Clock, text: "Sofort bestätigt" },
+                  { icon: Scissors, text: "Professionell" },
+                ].map((feature, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border text-sm text-muted-foreground"
+                  >
+                    <feature.icon className="w-3.5 h-3.5 text-primary" />
+                    <span>{feature.text}</span>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* CTA Buttons */}
+              <motion.div
+                className="mt-6 flex flex-col sm:flex-row gap-3"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="flex-1">
+                  <Button
+                    asChild
+                    variant="silver"
+                    size="xl"
+                    className="w-full shadow-lg shadow-primary/20"
+                  >
+                    <Link
+                      to="/booking"
+                      onClick={onCtaClick}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <Scissors className="w-5 h-5" />
+                      <span>Jetzt Termin buchen</span>
+                    </Link>
+                  </Button>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    variant="silverOutline"
+                    size="xl"
+                    onClick={onClose}
+                    className="w-full sm:w-auto"
+                  >
+                    Später
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 const Index = () => {
   const [threshold, setThreshold] = useState<number>(10);
+  const bookingPopup = useBookingMarketingPopup();
 
   useEffect(() => {
     (async () => {
@@ -88,97 +372,144 @@ const Index = () => {
           <img
             src={heroImage}
             alt="Diva Haarstudio Salon Interieur"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-35"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-radial-gold" />
-        </div>
+
+      {/* Schwarze Grundabdunklung */}
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Edler Verlauf von links (Text-Lesbarkeit) */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/10 to-transparent" />
+</div>
+
 
         {/* Content */}
         <div className="container mx-auto px-4 relative z-10 -mt-0 md:-mt-26 flex justify-center items-center min-h-[90vh]">
           <div className="max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            ></motion.div>
+            {/* Enhanced Hero Content with Modern Animations */}
+<motion.div
+  variants={heroContainer}
+  initial="hidden"
+  animate="visible"
+  className="space-y-8"
+>
+  {/* Logo with Scale Animation */}
+  <motion.div
+    variants={heroItem}
+    className="mb-8"
+  >
+    <motion.img
+      src="/res/Logo.png"
+      alt="Diva Haarstudio Logo"
+      className="max-w-[340px] md:max-w-[460px] w-[85vw] md:w-full h-auto"
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.3 }}
+    />
+  </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-              className="mb-6"
-            >
-              <img
-                src="/res/Logo.png"
-                alt="Diva Haarstudio Logo"
-                className="max-w-[320px] md:max-w-[420px] w-[80vw] md:w-full h-auto ml-0 md:mx-0"
-                style={{ display: "block" }}
-              />
-            </motion.div>
+  {/* Headline with Gradient Accent */}
+  <motion.div variants={heroItem} className="space-y-4">
+    <h1 className="font-serif text-3xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">
+      Willkommen in unserem{" "}
+      <span className="block mt-2">
+        modernen{" "}
+        <span
+          className="text-silver-gradient"
+          style={{
+            background: "linear-gradient(135deg, #bcbcbc 0%, #e0e0e0 50%, #bcbcbc 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          Damen- & Herrensalon
+        </span>
+      </span>
+    </h1>
+  </motion.div>
 
-            {/* Professionell strukturierter Text */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl space-y-5"
-            >
-              <p className="font-medium text-foreground">
-                Willkommen in unserem modernen Damen- & Herrenfriseursalon
-              </p>
+  {/* Description with Staggered Text Reveal */}
+  <motion.div
+    variants={heroItem}
+    className="max-w-2xl space-y-6"
+  >
+    <motion.p
+      className="text-base md:text-xl text-foreground/90 leading-relaxed"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      Schönheit, Stil und Wohlbefinden unter einem Dach. Unser Salon steht für
+      professionelle Haarschnitte, moderne Farbtechniken und individuelle
+      Beratung – für Damen und Herren.
+    </motion.p>
 
-              <p>
-                Schönheit, Stil und Wohlbefinden unter einem Dach. Unser Salon steht für
-                professionelle Haarschnitte, moderne Farbtechniken und individuelle
-                Beratung – für Damen und Herren.
-              </p>
+    {/* Highlighted Motto Section */}
+    <motion.div
+      className="relative pl-6 border-l-4 border-primary/50"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+    >
+      <p className="text-base md:text-lg space-y-2">
+        <span className="block font-semibold text-foreground text-lg md:text-xl">
+          Ihr Stil. Ihre Ausstrahlung. Unsere Leidenschaft.
+        </span>
+        <span className="block text-muted-foreground">
+          Unser Motto:{" "}
+          <span className="font-bold text-primary">
+            Dein Haar … deine Krone
+          </span>{" "}
+          – wir bringen es zum Strahlen!
+        </span>
+      </p>
+    </motion.div>
+  </motion.div>
 
-              <p>
-                Ob klassisch, elegant oder trendig – wir unterstreichen Ihre Persönlichkeit
-                mit dem passenden Look. Bei uns treffen Qualität, Hygiene und eine
-                entspannte Atmosphäre aufeinander.
-              </p>
+  {/* CTA Buttons with Hover Effects */}
+  <motion.div
+    variants={heroItem}
+    className="flex flex-wrap gap-4 pt-4"
+  >
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <Button asChild variant="silver" size="xl" className="shadow-lg">
+        <Link to="/booking" className="flex items-center gap-2">
+          <Scissors className="w-5 h-5" />
+          <span>Termin buchen</span>
+        </Link>
+      </Button>
+    </motion.div>
 
-              <p className="text-muted-foreground">
-                 <span className="font-semibold">Ihr Stil. Ihre Ausstrahlung. Unsere Leidenschaft.</span>
-                <br />
-                <span className="text-foreground">
-                  Unser Motto: <span className="font-semibold">Dein Haar … deine Krone</span>  – wir
-                  bringen es zum Strahlen!
-                </span>
-              </p>
-            </motion.div>
+    
+  </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              className="flex flex-wrap gap-4"
-            >
-              <Button asChild variant="silver" size="xl">
-                <Link to="/booking">Termin buchen</Link>
-              </Button>
-              <Button asChild variant="silverOutline" size="xl">
-                <Link to="/team">Unser Team</Link>
-              </Button>
-            </motion.div>
+  {/* Optional: Trust Indicators */}
+  <motion.div
+    variants={heroItem}
+    className="flex flex-wrap items-center gap-6 pt-6 text-sm text-muted-foreground"
+  >
+    <div className="flex items-center gap-2">
+      <Sparkles className="w-4 h-4 text-primary" />
+      <span>Premium Qualität</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <User className="w-4 h-4 text-primary" />
+      <span>Erfahrene Stylisten</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <Clock className="w-4 h-4 text-primary" />
+      <span>Flexible Termine</span>
+    </div>
+  </motion.div>
+</motion.div>
           </div>
         </div>
         {/* Scroll Indicator entfernt */}
       </section>
 
-      {/* Laufender Banner */}
-        <div className="w-full bg-primary/10 border-y border-primary py-2 mt-4 overflow-hidden">
-          <marquee
-            behavior="scroll"
-            direction="left"
-            scrollamount="6"
-            className="text-primary font-semibold text-sm md:text-base px-2 md:px-0"
-          >
-            Wir öffnen auch am Samstagen und Montagen. Jetzt Termin sichern!
-          </marquee>
-        </div>
       {/* CTA Banner for Loyalty */}
       <section className="py-6">
         <div className="container mx-auto px-4">
@@ -355,7 +686,7 @@ const Index = () => {
                   </span>
                   <div className="flex gap-4">
                     <motion.a
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/diva_haar_studio?igsh=MWcweXU1anp2aXFqYw=="
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.1 }}
@@ -366,7 +697,7 @@ const Index = () => {
                     </motion.a>
 
                     <motion.a
-                      href="https://tiktok.com"
+                      href="https://www.tiktok.com/@divahaarstudio?_r=1&_t=ZG-93YeYIE19iy"
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.1 }}
@@ -377,7 +708,7 @@ const Index = () => {
                     </motion.a>
 
                     <motion.a
-                      href="https://facebook.com"
+                      href="https://www.facebook.com/share/1AXdeye6CK/?mibextid=wwXIfr"
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.1 }}
@@ -456,6 +787,13 @@ const Index = () => {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Marketing Popup (Terminbuchung) */}
+      <BookingMarketingPopup
+        isOpen={bookingPopup.isOpen}
+        onClose={bookingPopup.close}
+        onCtaClick={bookingPopup.onCtaClick}
+      />
     </div>
   );
 };

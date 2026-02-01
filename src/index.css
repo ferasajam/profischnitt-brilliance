@@ -83,7 +83,7 @@
   .dark {
     /* Dark mode is the default for this luxury theme */
     --background: 0 0% 3%;
-    --foreground: 43 100% 90%;
+    --foreground: 0 0% 90%;
   }
 }
 
