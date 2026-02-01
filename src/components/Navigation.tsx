@@ -11,7 +11,6 @@ const navLinks = [
   { href: "/", label: "Startseite" },
   { href: "/leistungen", label: "Leistungen" },
   { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
-  { href: "/team", label: "Team" },
 ];
 
 export const Navigation = () => {
@@ -130,6 +129,25 @@ export const Navigation = () => {
               />
             </Link>
           ))}
+          {!user && (
+            <>
+              <Link to="/auth?tab=register" className="relative group">
+                <span className="text-sm font-medium transition-colors text-foreground/70 hover:text-foreground">Registrieren</span>
+              </Link>
+              <Link to="/auth?tab=contact" className="relative group">
+                <span className="text-sm font-medium transition-colors text-foreground/70 hover:text-foreground">Anmelden</span>
+              </Link>
+            </>
+          )}
+          {user && (
+            <Link to="/profile">
+              <Avatar className="h-9 w-9 border border-border">
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          )}
         </div>
 
         {/* MOBILE CONTROLS */}
