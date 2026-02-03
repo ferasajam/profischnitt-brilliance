@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/", label: "Startseite" },
   { href: "/leistungen", label: "Leistungen" },
   { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
+  { href: "/team", label: "Team" },
 ];
 
 export const Navigation = () => {
@@ -129,6 +130,24 @@ export const Navigation = () => {
               />
             </Link>
           ))}
+          {user && isAdmin && (
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="flex-1 max-w-[120px]">
+              <Button
+                asChild
+                variant="silver"
+                size="sm"
+                className="w-full shadow-lg shadow-primary/20 px-2 py-1"
+              >
+                <Link
+                  to="/admin"
+                  className="flex items-center justify-center gap-1"
+                >
+                  <Scissors className="w-4 h-4" />
+                  <span className="text-xs">Admin</span>
+                </Link>
+              </Button>
+            </motion.div>
+          )}
           {!user && (
             <>
               <Link to="/auth?tab=register" className="relative group">
@@ -195,6 +214,15 @@ export const Navigation = () => {
                   {link.label}
                 </Link>
               ))}
+              {user && isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="text-lg font-medium text-foreground/70 hover:text-foreground"
+                >
+                  Admin
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

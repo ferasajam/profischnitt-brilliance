@@ -94,7 +94,10 @@ export default function Bookings() {
           // Send feedback request email
           const booking = bookings.find(b => b.id === id);
           if (booking) {
-            const reviewLink = `${window.location.origin}/review?bookingId=${id}&stylistId=${(booking as any).stylist_id ?? ''}&serviceId=${(booking as any).service_id ?? ''}`;
+            const feedbackToken = (booking as any).feedback_token;
+            const reviewLink = feedbackToken
+              ? `${window.location.origin}/review?token=${feedbackToken}`
+              : `${window.location.origin}/review?bookingId=${id}&stylistId=${(booking as any).stylist_id ?? ''}&serviceId=${(booking as any).service_id ?? ''}`;
             await supabase.functions.invoke('send-feedback', {
               body: {
                 to: booking.customer_email,
