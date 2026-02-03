@@ -52,29 +52,25 @@ const heroItem = {
 
 const services = [
   {
-    image: herrenhaarschnittImg,
-    title: "Herrenhaarschnitt",
-    description:
-      "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
-    price: "Ab 21€",
-  },
-  {
     image: damenhaarschnittImg,
     title: "Damenhaarschnitt",
     description: "Elegante Schnitte und Styling für jeden Anlass",
-    price: "Ab 35€",
-  },
-  {
-    image: bartpflegeImg,
-    title: "Bartpflege",
-    description: "Professionelle Bartformung, Trimmen und Heißtuchbehandlungen",
-    price: "Ab 13€",
   },
   {
     image: wavesImg,
     title: "Dauerwelle & Styling",
     description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
-    price: "Ab 50€",
+  },
+  {
+    image: herrenhaarschnittImg,
+    title: "Herrenhaarschnitt",
+    description:
+      "Präzise Schnitte und klassische Styles, perfekt auf Ihre Gesichtszüge abgestimmt",
+  },
+  {
+    image: bartpflegeImg,
+    title: "Bartpflege",
+    description: "Professionelle Bartformung, Trimmen und Heißtuchbehandlungen",
   },
 ];
 
@@ -545,12 +541,12 @@ const Index = () => {
                   backgroundClip: "text",
                 }}
               >
-                Hairstyling
+                Damen & Herren Styling in Münster
               </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Von klassischen Schnitten bis zu modernem Styling bieten wir eine komplette
-              Palette an Premium-Services für Damen und Herren.
+              Preise abhängig von Haarlänge & Aufwand.
+              Kostenlose Beratung vor Ort.
             </p>
           </AnimatedSection>
 
@@ -637,7 +633,7 @@ const Index = () => {
                     <div>
                       <span className="text-sm text-muted-foreground block">Telefon (Festnetz)</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
-                        025161082
+                        +49 (0) 251 61082
                       </span>
                     </div>
                   </a>
@@ -648,7 +644,7 @@ const Index = () => {
                     <div>
                       <span className="text-sm text-muted-foreground block">Mobilnummer</span>
                       <span className="text-foreground font-medium group-hover:text-primary transition-colors">
-                        015214414146
+                        +49 (0) 152 14414146
                       </span>
                     </div>
                   </a>
@@ -673,7 +669,7 @@ const Index = () => {
                     <div>
                       <span className="text-sm text-muted-foreground block">Adresse</span>
                       <span className="text-foreground font-medium">
-                        Zum Erlenbusch 13, 48167 Münster
+                        Zum Erlenbusch 13 | 48167 Münster
                       </span>
                     </div>
                   </div>
@@ -761,7 +757,7 @@ const Index = () => {
               />
               <div className="mt-6 text-center">
                 <span className="text-foreground font-medium text-lg">
-                  Zum Erlenbusch 13, 48167 Münster
+                  Zum Erlenbusch 13 | 48167 Münster
                 </span>
               </div>
             </div>

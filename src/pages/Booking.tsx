@@ -664,7 +664,7 @@ const Booking = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="015214414146"
+                        placeholder="+49 (0) 152 14414146"
                         required
                         className="bg-card border-border focus:border-primary"
                       />
