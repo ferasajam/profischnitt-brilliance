@@ -21,8 +21,9 @@ import wavesImg from "@/assets/waves.png";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import heroImage from "@/assets/hero-salon.png";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getCookieConsentChoice, subscribeCookieConsentChoice } from "@/lib/cookieConsent";
 
 const BOOKING_POPUP_STORAGE_KEY = "marketing_booking_popup_suppress_until";
 const BOOKING_POPUP_SCROLL_THRESHOLD = 0.3; // 30% (akzeptabler Bereich: 25–35%)
@@ -50,16 +51,24 @@ const heroItem = {
   },
 };
 
-const services = [
+type Service = {
+  image?: string;
+  title: string;
+  description: string;
+  price?: string;
+  icon?: ComponentType<{ className?: string }>;
+};
+
+const services: Service[] = [
   {
     image: damenhaarschnittImg,
-    title: "Damenhaarschnitt",
-    description: "Elegante Schnitte und Styling für jeden Anlass",
+    title: "Haarverlängerung für Traumhaare",
+    description: " Haarverlängerung für mehr Länge und Ausstrahlung",
   },
   {
     image: wavesImg,
-    title: "Dauerwelle & Styling",
-    description: "Moderne Wave-Techniken und fortgeschrittene Styling-Services",
+    title: "Dauerwelle & Glättung",
+    description: "Moderne Dauerwelle und Glättung für einen frischen, gepflegten Look.",
   },
   {
     image: herrenhaarschnittImg,
@@ -339,6 +348,15 @@ const BookingMarketingPopup = ({ isOpen, onClose, onCtaClick }: BookingMarketing
 const Index = () => {
   const [threshold, setThreshold] = useState<number>(10);
   const bookingPopup = useBookingMarketingPopup();
+  const [isMapLoaded, setIsMapLoaded] = useState(() => getCookieConsentChoice() === "all");
+
+  useEffect(() => {
+    // If user changes consent to "all", we can load map automatically.
+    const cleanup = subscribeCookieConsentChoice((choice) => {
+      if (choice === "all") setIsMapLoaded(true);
+    });
+    return cleanup;
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -418,7 +436,7 @@ const Index = () => {
             backgroundClip: "text",
           }}
         >
-          Damen- & Herrensalon
+          Damen- & Herrensalon in Münster
         </span>
       </span>
     </h1>
@@ -566,7 +584,6 @@ const Index = () => {
                     />
                   ) : (
                     <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors overflow-hidden">
-                      {/* @ts-expect-error icon is optional */}
                       {service.icon && <service.icon className="w-7 h-7 text-primary" />}
                     </div>
                   )}
@@ -576,7 +593,9 @@ const Index = () => {
                   <p className="text-muted-foreground text-sm mb-4 text-center">
                     {service.description}
                   </p>
-                  <span className="text-primary font-semibold">{service.price}</span>
+                  {service.price ? (
+                    <span className="text-primary font-semibold">{service.price}</span>
+                  ) : null}
                 </motion.div>
               </AnimatedSection>
             ))}
@@ -722,52 +741,222 @@ const Index = () => {
       </section>
 
       {/* Map Section */}
-      <section className="py-24 bg-card">
-        <div className="container mx-auto px-4">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Besuchen Sie unseren{" "}
-              <span
-                className="text-silver-gradient"
-                style={{
-                  background: "linear-gradient(90deg, #bcbcbc 0%, #e0e0e0 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Salon
-              </span>
-            </h2>
-            <p className="text-muted-foreground">Finden Sie uns im Herzen von Münster-Hiltrup</p>
-          </AnimatedSection>
+<section className="py-24 bg-gradient-to-b from-card to-background relative overflow-hidden">
+  {/* Decorative Background Elements */}
+  <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute top-20 left-10 w-72 h-72 bg-silver-gradient opacity-5 rounded-full blur-3xl" />
+    <div className="absolute bottom-20 right-10 w-96 h-96 bg-silver-gradient opacity-5 rounded-full blur-3xl" />
+  </div>
 
-          <AnimatedSection>
-            <div className="rounded-3xl overflow-hidden border border-border">
+  <div className="container mx-auto px-4 relative z-10">
+    {/* Header */}
+    <AnimatedSection className="text-center mb-16">
+      <div className="inline-block mb-4">
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 text-sm font-medium text-muted-foreground border border-border/50">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Unser Standort
+        </span>
+      </div>
+      
+      <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+        Besuchen Sie unseren{" "}
+        <span
+          className="relative inline-block"
+          style={{
+            background: "linear-gradient(135deg, #bcbcbc 0%, #e0e0e0 50%, #bcbcbc 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            backgroundSize: "200% auto",
+            animation: "shimmer 3s linear infinite"
+          }}
+        >
+          Salon
+          <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-silver-gradient to-transparent opacity-50" />
+        </span>
+      </h2>
+      
+      <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+        Finden Sie uns im Herzen von Münster-Gremmendorf
+      </p>
+    </AnimatedSection>
+
+    {/* Map Container */}
+    <AnimatedSection delay={0.2}>
+      <div className="max-w-5xl mx-auto">
+        <div className="group relative rounded-3xl overflow-hidden border border-border/50 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-[1.02]">
+          {/* Map Frame with Gradient Border */}
+          <div className="absolute inset-0 bg-gradient-to-br from-silver-gradient/20 via-transparent to-silver-gradient/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
+          
+          {/* Map */}
+          <div className="relative aspect-video md:aspect-[16/9] lg:aspect-[21/9]">
+            {isMapLoaded ? (
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2533.4719283422704!2d7.673737876766184!3d51.91810127145644!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b9ae8e145d420f%3A0xf0c3e1d3f57c4b6b!2sZum%20Erlenbusch%2013%2C%2048167%20M%C3%BCnster!5e0!3m2!1sde!2sde!4v1736940000000!5m2!1sde!2sde"
                 width="100%"
-                height="450"
+                height="100%"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Diva Haarstudio Standort"
-                className="w-full h-64 md:h-96"
+                className="w-full h-full"
               />
-              <div className="mt-6 text-center">
-                <span className="text-foreground font-medium text-lg">
-                  Zum Erlenbusch 13 | 48167 Münster
-                </span>
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <div className="text-center px-6 max-w-xl">
+                  <p className="text-foreground font-semibold mb-2">Google Maps anzeigen</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Durch das Laden der Karte werden Daten an Google übertragen.
+                  </p>
+                  <Button variant="silver" onClick={() => setIsMapLoaded(true)}>
+                    Karte laden
+                  </Button>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Info Card Overlay */}
+          <div className="relative bg-gradient-to-t from-background via-background/95 to-transparent p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              {/* Address */}
+              <div className="flex items-start gap-4 text-center md:text-left">
+                <div className="hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-silver-gradient/10 border border-silver-gradient/20 flex-shrink-0">
+                  <svg className="w-6 h-6 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Adresse</p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    Zum Erlenbusch 13 |
+                  </p>
+                  <p className="text-lg md:text-xl font-semibold text-foreground">
+                    48167 Münster
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <Button
+                asChild
+                variant="silverOutline"
+                size="lg"
+                className="group/btn relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                <a
+                  href="https://www.google.com/search?sca_esv=44ea38d9bdd60463&rlz=1C1FKPE_enDE1145DE1145&sxsrf=ANbL-n7iD8NNCyMWnxg8q2Uwnx7j2pBEYg:1770297483776&q=DIVA+HAIR+STUDIO&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qORedxeDsMk9mnfOicptlPjhdCWx52CfgAq15y2RMmneKmVxwQioSO2G5EU5AycG7Wo_eITo%3D&uds=ALYpb_k6otuSYDT1zFYqBpNGDSzKzokZJ8IT0dlUMWWnqt0GBX4RIqfYD2OhZ_YxkWOC73ODpGE-aAOLLhebkMVknlBV9gO9QL8GZvNbr758uoKCQUKCyYU&sa=X&ved=2ahUKEwiDgauFuMKSAxUw0wIHHUHML5wQ3PALegQIQRAF&biw=2560&bih=1351&dpr=1&aic=0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  </svg>
+                  Bewerten Sie uns auf Google
+                  <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Info Cards */}
+        <div className="grid md:grid-cols-3 gap-6 mt-12">
+          <AnimatedSection delay={0.3}>
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=Zum%20Erlenbusch%2013%2048167%20M%C3%BCnster"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <div className="p-6 rounded-2xl bg-card border border-border/50 hover:border-silver-gradient/50 transition-all duration-300 hover:shadow-lg text-center group">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-silver-gradient/10 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg
+                    className="w-7 h-7 text-foreground"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5a1 1 0 011.447-.894L9 6.382l6-3 6 3V19"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 6v14"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 3v16"
+                    />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Anfahrt</h3>
+                <p className="text-sm text-muted-foreground">Route planen in Google Maps</p>
+                <p className="text-sm text-muted-foreground">mit einem Klick öffnen</p>
+              </div>
+            </a>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.4}>
+            <Link to="/booking" className="block">
+              <div className="p-6 rounded-2xl bg-card border border-border/50 hover:border-silver-gradient/50 transition-all duration-300 hover:shadow-lg text-center group">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-silver-gradient/10 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg
+                    className="w-7 h-7 text-foreground"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Online buchen</h3>
+                <p className="text-sm text-muted-foreground">Wunschtermin direkt online</p>
+                <p className="text-sm text-muted-foreground">schnell & unkompliziert</p>
+              </div>
+            </Link>
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.5}>
+            <div className="p-6 rounded-2xl bg-card border border-border/50 hover:border-silver-gradient/50 transition-all duration-300 hover:shadow-lg text-center group">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-silver-gradient/10 mb-4 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Parkplätze</h3>
+              <p className="text-sm text-muted-foreground">Kostenlose Parkplätze</p>
+              <p className="text-sm text-muted-foreground">direkt vor Ort</p>
             </div>
           </AnimatedSection>
         </div>
-      </section>
+      </div>
+    </AnimatedSection>
+  </div>
+</section>
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial-gold opacity-50" />
+      <section className="py-24 relative overflow-hidden bg-card">
         <div className="container mx-auto px-4 relative z-10">
           <AnimatedSection className="text-center max-w-3xl mx-auto">
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">

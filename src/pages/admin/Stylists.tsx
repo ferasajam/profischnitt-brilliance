@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, User, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, User, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -22,6 +22,8 @@ interface Stylist {
   image_url: string | null;
   instagram_url: string | null;
   is_active: boolean;
+  serves_women: boolean;
+  serves_men: boolean;
 }
 
 interface Service {
@@ -30,6 +32,11 @@ interface Service {
   category: string | null;
   duration_minutes: number;
   price: number;
+}
+
+interface StylistServiceLink {
+  service_id: string;
+  sort_order: number | null;
 }
 
 export default function Stylists() {
@@ -49,13 +56,15 @@ export default function Stylists() {
     image_url: '',
     instagram_url: '',
     is_active: true,
+    serves_women: true,
+    serves_men: true,
   });
   const { toast } = useToast();
 
-  const fetchStylists = async () => {
+  const fetchStylists = useCallback(async () => {
     const { data, error } = await supabase
       .from('stylists')
-      .select('id, name, title, specialty, bio, image_url, instagram_url, is_active')
+      .select('id, name, title, specialty, bio, image_url, instagram_url, is_active, serves_women, serves_men')
       .order('name');
 
     if (error) {
@@ -68,11 +77,11 @@ export default function Stylists() {
       setStylists(data || []);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchStylists();
-  }, []);
+  }, [fetchStylists]);
 
   const openAssignServices = async (stylist: Stylist) => {
     setAssignStylist(stylist);
@@ -81,40 +90,115 @@ export default function Stylists() {
       .from('services')
       .select('id, name, category, duration_minutes, price')
       .order('category');
-    setAllServices(services || []);
+    const servicesList = (services || []) as Service[];
+    setAllServices(servicesList);
     // Load current mappings
     const { data: links } = await supabase
       .from('stylist_services')
-      .select('service_id')
+      .select('service_id, sort_order')
       .eq('stylist_id', stylist.id);
-    setSelectedServiceIds((links || []).map(l => l.service_id));
+
+    const ordered = (((links || []) as unknown) as StylistServiceLink[])
+      .slice()
+      .sort((a, b) => {
+        const ao = a.sort_order ?? Number.POSITIVE_INFINITY;
+        const bo = b.sort_order ?? Number.POSITIVE_INFINITY;
+        if (ao !== bo) return ao - bo;
+        const an = servicesList.find(s => s.id === a.service_id)?.name ?? '';
+        const bn = servicesList.find(s => s.id === b.service_id)?.name ?? '';
+        return an.localeCompare(bn, 'de');
+      });
+
+    setSelectedServiceIds(ordered.map(l => l.service_id));
     setServicesDialogOpen(true);
   };
 
   const toggleService = (serviceId: string, checked: boolean) => {
-    setSelectedServiceIds(prev => checked ? [...prev, serviceId] : prev.filter(id => id !== serviceId));
+    setSelectedServiceIds(prev => {
+      if (checked) return prev.includes(serviceId) ? prev : [...prev, serviceId];
+      return prev.filter(id => id !== serviceId);
+    });
+  };
+
+  const moveSelectedService = (serviceId: string, direction: 'up' | 'down') => {
+    setSelectedServiceIds(prev => {
+      const index = prev.indexOf(serviceId);
+      if (index === -1) return prev;
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const next = prev.slice();
+      const tmp = next[targetIndex];
+      next[targetIndex] = next[index];
+      next[index] = tmp;
+      return next;
+    });
   };
 
   const saveAssignedServices = async () => {
     if (!assignStylist) return;
     // Current links
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('stylist_services')
       .select('service_id')
       .eq('stylist_id', assignStylist.id);
-    const existingIds = new Set((existing || []).map(e => e.service_id));
-    const desiredIds = new Set(selectedServiceIds);
 
-    // Inserts
-    const toInsert = [...desiredIds].filter(id => !existingIds.has(id)).map(id => ({ stylist_id: assignStylist.id, service_id: id }));
-    if (toInsert.length) {
-      await supabase.from('stylist_services').insert(toInsert);
+    if (existingError) {
+      toast({
+        title: 'Fehler',
+        description: 'Bestehende Service-Zuweisungen konnten nicht geladen werden.',
+        variant: 'destructive',
+      });
+      return;
     }
+
+    const existingIds = new Set(((existing || []) as Array<{ service_id: string }>).map(e => e.service_id));
+    const desiredIds = selectedServiceIds;
+
     // Deletes
-    const toDelete = [...existingIds].filter(id => !desiredIds.has(id));
+    const toDelete = [...existingIds].filter(id => !desiredIds.includes(id));
     if (toDelete.length) {
-      await supabase.from('stylist_services').delete().in('service_id', toDelete).eq('stylist_id', assignStylist.id);
+      const { error: deleteError } = await supabase
+        .from('stylist_services')
+        .delete()
+        .eq('stylist_id', assignStylist.id)
+        .in('service_id', toDelete);
+
+      if (deleteError) {
+        toast({
+          title: 'Fehler',
+          description: 'Entfernen von Services ist fehlgeschlagen.',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
+
+    // Upsert (also updates sort_order)
+    if (desiredIds.length) {
+      const rows = desiredIds.map((service_id, index) => ({
+        stylist_id: assignStylist.id,
+        service_id,
+        sort_order: index,
+      }));
+
+      const { error: upsertError } = await supabase
+        .from('stylist_services')
+        .upsert(rows, { onConflict: 'stylist_id,service_id' });
+
+      if (upsertError) {
+        toast({
+          title: 'Fehler',
+          description: 'Speichern der Reihenfolge ist fehlgeschlagen.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
+    toast({
+      title: 'Erfolg',
+      description: 'Services und Reihenfolge wurden gespeichert.',
+    });
 
     setServicesDialogOpen(false);
     setAssignStylist(null);
@@ -175,6 +259,8 @@ export default function Stylists() {
       image_url: stylist.image_url || '',
       instagram_url: stylist.instagram_url || '',
       is_active: stylist.is_active,
+      serves_women: stylist.serves_women,
+      serves_men: stylist.serves_men,
     });
     setIsDialogOpen(true);
   };
@@ -219,6 +305,23 @@ export default function Stylists() {
     }
   };
 
+  const toggleAudience = async (id: string, patch: Partial<Pick<Stylist, 'serves_women' | 'serves_men'>>) => {
+    const { error } = await supabase
+      .from('stylists')
+      .update(patch)
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: 'Fehler',
+        description: 'Zielgruppe konnte nicht geändert werden.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    fetchStylists();
+  };
+
   const resetForm = () => {
     setEditingStylist(null);
     setFormData({
@@ -229,6 +332,8 @@ export default function Stylists() {
       image_url: '',
       instagram_url: '',
       is_active: true,
+      serves_women: true,
+      serves_men: true,
     });
   };
 
@@ -334,6 +439,25 @@ export default function Stylists() {
                 />
                 <Label htmlFor="is_active">Aktiv</Label>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="serves_women"
+                    checked={formData.serves_women}
+                    onCheckedChange={(checked) => setFormData({ ...formData, serves_women: checked })}
+                  />
+                  <Label htmlFor="serves_women">Damen</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="serves_men"
+                    checked={formData.serves_men}
+                    onCheckedChange={(checked) => setFormData({ ...formData, serves_men: checked })}
+                  />
+                  <Label htmlFor="serves_men">Herren</Label>
+                </div>
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Abbrechen
@@ -361,6 +485,7 @@ export default function Stylists() {
                   <TableHead>Stylist</TableHead>
                   <TableHead>Titel</TableHead>
                   <TableHead>Spezialgebiet</TableHead>
+                  <TableHead>Zielgruppe</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Aktionen</TableHead>
                 </TableRow>
@@ -387,6 +512,24 @@ export default function Stylists() {
                     </TableCell>
                     <TableCell>{stylist.title || '-'}</TableCell>
                     <TableCell>{stylist.specialty || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={stylist.serves_women}
+                            onCheckedChange={(checked) => toggleAudience(stylist.id, { serves_women: checked })}
+                          />
+                          <span className="text-sm text-muted-foreground">Damen</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={stylist.serves_men}
+                            onCheckedChange={(checked) => toggleAudience(stylist.id, { serves_men: checked })}
+                          />
+                          <span className="text-sm text-muted-foreground">Herren</span>
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Switch
                         checked={stylist.is_active}
@@ -435,6 +578,55 @@ export default function Stylists() {
             <DialogTitle>Services zuweisen {assignStylist ? `– ${assignStylist.name}` : ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 max-h-[60vh] overflow-auto pr-1">
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Reihenfolge in Booking</h4>
+              {selectedServiceIds.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Services ausgewählt.</p>
+              ) : (
+                <div className="space-y-2">
+                  {selectedServiceIds.map((serviceId, index) => {
+                    const service = allServices.find(s => s.id === serviceId);
+                    if (!service) return null;
+                    return (
+                      <div key={serviceId} className="flex items-center gap-2 p-3 border rounded-md bg-card">
+                        <div className="flex-1">
+                          <div className="font-medium">{index + 1}. {service.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {(service.category || 'Ohne Kategorie')} · {service.duration_minutes} Min
+                            {typeof service.price === 'number' ? ` · ${service.price.toFixed(2)}€` : ''}
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === 0}
+                            onClick={() => moveSelectedService(serviceId, 'up')}
+                            aria-label="Nach oben"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === selectedServiceIds.length - 1}
+                            onClick={() => moveSelectedService(serviceId, 'down')}
+                            aria-label="Nach unten"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {['Herren','Damen','Styling','Farbe','Pflege'].map(cat => (
               <div key={cat}>
                 <h4 className="text-sm font-medium text-muted-foreground mb-2">{cat}</h4>
@@ -447,7 +639,7 @@ export default function Stylists() {
                       />
                       <div className="flex-1">
                         <div className="font-medium">{service.name}</div>
-                        <div className="text-xs text-muted-foreground">{service.duration_minutes} Min · {service.price.toFixed(2)}€</div>
+                        <div className="text-xs text-muted-foreground">{service.duration_minutes} Min{typeof service.price === 'number' ? ` · ${service.price.toFixed(2)}€` : ''}</div>
                       </div>
                     </label>
                   ))}

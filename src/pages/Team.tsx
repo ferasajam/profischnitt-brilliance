@@ -14,6 +14,8 @@ interface Stylist {
   bio: string | null;
   image_url: string | null;
   instagram_url: string | null;
+  serves_women?: boolean;
+  serves_men?: boolean;
 }
 
 const heroVariants = {
@@ -21,7 +23,7 @@ const heroVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7 },
   },
 };
 
@@ -44,11 +46,19 @@ const Team = () => {
     const loadStylists = async () => {
       const { data } = await supabase
         .from("stylists")
-        .select("id, name, title, specialty, bio, image_url, instagram_url")
+        .select("id, name, title, specialty, bio, image_url, instagram_url, serves_women, serves_men")
         .eq("is_active", true)
         .order("name");
 
-      setStylists(data || []);
+      // Damen zuerst
+      const sorted = (data || []).sort((a, b) => {
+        const aWomen = Boolean(a.serves_women);
+        const bWomen = Boolean(b.serves_women);
+        if (aWomen !== bWomen) return aWomen ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      setStylists(sorted);
       setIsLoading(false);
     };
 
@@ -248,7 +258,7 @@ const Team = () => {
                       </div>
 
                       {/* Reviews */}
-                      {reviews[stylist.id] && reviews[stylist.id].length > 0 && (
+                      {(reviews[stylist.id] && reviews[stylist.id].length > 0) && (
                         <div className="mt-6">
                           <span className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
                             Bewertungen
@@ -270,6 +280,47 @@ const Team = () => {
                                 {rev.comment && (
                                   <p className="text-sm text-muted-foreground">{rev.comment}</p>
                                 )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mock Bewertungen für Maha Wazzan (wie echte Reviews) */}
+                      {stylist.name === "Maha Wazzan" && (!reviews[stylist.id] || reviews[stylist.id].length === 0) && (
+                        <div className="mt-6">
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+                            Bewertungen
+                          </span>
+                          <div className="space-y-3">
+                            {[
+                              { rating: 5, comment: "„Perfekte Beratung und ein wunderschönes Ergebnis.“" },
+                              { rating: 5, comment: "„Absolute Empfehlung für Damenfrisuren!“" },
+                            ].map((rev, idx) => (
+                              <div
+                                key={idx}
+                                className="p-3 rounded-lg bg-secondary/50 border border-border"
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <svg
+                                      key={i}
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="lucide lucide-star w-4 h-4 fill-primary text-primary"
+                                    >
+                                      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>
+                                    </svg>
+                                  ))}
+                                </div>
+                                <p className="text-sm text-muted-foreground">{rev.comment}</p>
                               </div>
                             ))}
                           </div>

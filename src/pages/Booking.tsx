@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import { 
-  User, 
-  Users, 
   Scissors, 
   Sparkles, 
   Calendar,
@@ -32,11 +31,17 @@ interface Stylist {
   image_url: string | null;
 }
 
+type BookedSlot = { start_time: string; end_time: string };
+type PostgrestErrorLike = { code?: string; message?: string };
+
 // Mock available time slots
-const timeSlots = [
+const timeSlotsMen = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
   "12:00", "12:30", "14:00", "14:30", "15:00", "15:30",
   "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"
+];
+const timeSlotsWomen = [
+  "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
 type BookingStep = "gender" | "service" | "stylist" | "datetime" | "details" | "confirmation";
@@ -61,52 +66,57 @@ const Booking = () => {
   const currentService = services.find(s => s.id === selectedService);
   const currentStylist = stylists.find(s => s.id === selectedStylist);
 
-  // Load services when gender changes
+  // Step 2: load stylists when gender changes
   useEffect(() => {
     if (!gender) return;
-    const category = gender === 'men' ? 'Herren' : 'Damen';
     (async () => {
+      const column = gender === "men" ? "serves_men" : "serves_women";
       const { data } = await supabase
-        .from('services')
-        .select('id, name, category, duration_minutes, price')
-        .eq('is_active', true)
-        .eq('category', category)
-        .order('name');
-      setServices(data || []);
+        .from("stylists")
+        .select("id, name, image_url")
+        .eq("is_active", true)
+        .eq(column, true)
+        .order("name");
+
+      setStylists((data as Stylist[] | null) || []);
+      setSelectedStylist(null);
+
+      // Reset downstream selections
+      setServices([]);
       setSelectedService(null);
+      setSelectedDate(null);
+      setSelectedTime(null);
     })();
   }, [gender]);
 
-  // Load stylists based on selected service or gender category
+  // Step 3: load services for selected stylist
   useEffect(() => {
-    if (!gender) return;
-    const category = gender === 'men' ? 'Herren' : 'Damen';
+    if (!gender || !selectedStylist) {
+      setServices([]);
+      setSelectedService(null);
+      return;
+    }
+
     (async () => {
-      if (selectedService) {
-        // Stylists linked to the chosen service
-        const { data } = await supabase
-          .from('stylist_services')
-          .select('stylist_id, stylists(id, name, image_url)')
-          .eq('service_id', selectedService);
-        const result: Stylist[] = (data || [])
-          .map((r: any) => r.stylists)
-          .filter(Boolean);
-        setStylists(result);
-      } else {
-        // Stylists linked to any service in the chosen category
-        const { data } = await supabase
-          .from('stylist_services')
-          .select('stylist_id, services(category), stylists(id, name, image_url)')
-          .eq('services.category', category);
-        const byId = new Map<string, Stylist>();
-        (data || []).forEach((row: any) => {
-          if (row.stylists) byId.set(row.stylists.id, row.stylists);
-        });
-        setStylists([...byId.values()]);
-      }
-      setSelectedStylist(null);
+      const category = gender === "men" ? "Herren" : "Damen";
+      const { data } = await supabase
+        .from("stylist_services")
+        .select("service_id, services!inner(id, name, category, duration_minutes, price)")
+        .eq("stylist_id", selectedStylist)
+        .eq("services.category", category);
+
+      type Row = { services: Service | null };
+      const result = ((data as unknown as Row[] | null | undefined) ?? [])
+        .map((row) => row.services)
+        .filter((s): s is Service => Boolean(s))
+        .sort((a, b) => a.name.localeCompare(b.name, "de"));
+
+      setServices(result);
+      setSelectedService(null);
+      setSelectedDate(null);
+      setSelectedTime(null);
     })();
-  }, [gender, selectedService]);
+  }, [gender, selectedStylist]);
 
   // Load booked slots for selected stylist + date
   useEffect(() => {
@@ -116,17 +126,21 @@ const Booking = () => {
         return;
       }
       const booking_date = selectedDate.toISOString().slice(0, 10);
-      const { data } = await supabase.rpc('get_booked_slots', {
+
+      const rpcClient = supabase as unknown as {
+        rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }>;
+      };
+      const res = await rpcClient.rpc("get_booked_slots", {
         _stylist_id: selectedStylist,
         _date: booking_date,
       });
-      setBusySlots((data as any[])?.map((r: any) => ({ start_time: r.start_time, end_time: r.end_time })) || []);
+      setBusySlots(((res.data as unknown as BookedSlot[] | null) ?? []) satisfies BookedSlot[]);
       setSelectedTime(null);
     };
     loadBusy();
   }, [selectedStylist, selectedDate]);
 
-  const steps: BookingStep[] = ["gender", "service", "stylist", "datetime", "details", "confirmation"];
+  const steps: BookingStep[] = ["gender", "stylist", "service", "datetime", "details", "confirmation"];
   const currentStepIndex = steps.indexOf(step);
 
   const nextStep = () => {
@@ -151,10 +165,25 @@ const Booking = () => {
 
     const booking_date = selectedDate.toISOString().slice(0, 10);
 
-    const cancellation_token = (crypto as any).randomUUID ? (crypto as any).randomUUID() : undefined;
+    const cancellation_token = (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.();
 
-    const { data, error } = await supabase
-      .from('bookings')
+    const untyped = supabase as unknown as {
+      from: (table: string) => {
+        insert: (values: Record<string, unknown>) => {
+          select: (columns: string) => {
+            single: () => Promise<{
+              data: { id: string; cancellation_token?: string | null } | null;
+              error: PostgrestErrorLike | null;
+            }>;
+          };
+        };
+      };
+      rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }>;
+      functions: { invoke: (fn: string, opts: { body: unknown }) => Promise<unknown> };
+    };
+
+    const { data, error } = await untyped
+      .from("bookings")
       .insert({
         customer_id: user?.id ?? null,
         customer_name: formData.name,
@@ -163,24 +192,28 @@ const Booking = () => {
         booking_date,
         start_time: start,
         end_time: end,
-        status: 'pending',
+        status: "pending",
         stylist_id: selectedStylist,
         service_id: selectedService,
         cancellation_token,
       })
-      .select('id, cancellation_token')
+      .select("id, cancellation_token")
       .single();
 
     if (error) {
       // If another user just booked this slot, the DB constraint will reject
-      if ((error as any).code === '23P01' || (error as any).message?.includes('bookings_no_overlap')) {
-        alert('Dieser Termin wurde gerade von jemand anderem gebucht. Bitte wählen Sie eine andere Zeit.');
+      const code = error.code;
+      const msg = error.message;
+      if (code === "23P01" || msg?.includes("bookings_no_overlap")) {
+        alert(
+          "Dieser Termin wurde gerade von jemand anderem gebucht. Bitte wählen Sie eine andere Zeit."
+        );
         // Reload busy slots to refresh availability
-        const { data: refreshed } = await supabase.rpc('get_booked_slots', {
+        const refreshedRes = await untyped.rpc("get_booked_slots", {
           _stylist_id: selectedStylist,
           _date: booking_date,
         });
-        setBusySlots((refreshed as any[])?.map((r: any) => ({ start_time: r.start_time, end_time: r.end_time })) || []);
+        setBusySlots(((refreshedRes.data as unknown as BookedSlot[] | null) ?? []) satisfies BookedSlot[]);
         setSelectedTime(null);
         return;
       }
@@ -190,7 +223,7 @@ const Booking = () => {
     if (data) {
       try {
         const cancelLink = `${window.location.origin}/cancel?token=${data.cancellation_token}`;
-        await supabase.functions.invoke('send-confirmation', {
+        await untyped.functions.invoke("send-confirmation", {
           body: {
             to: formData.email,
             name: formData.name,
@@ -203,7 +236,9 @@ const Booking = () => {
             cancelLink,
           },
         });
-      } catch {}
+      } catch (err) {
+        void err;
+      }
       nextStep();
     }
   };
@@ -241,7 +276,7 @@ const Booking = () => {
               Buchen Sie Ihren <span className="text-gold-gradient">Termin</span>
             </h1>
             <p className="text-muted-foreground">
-              Wählen Sie Ihre Leistung, Ihren Stylisten und Ihre bevorzugte Zeit
+              Wählen Sie Ihren Stylisten, Ihre Frisur und Ihre bevorzugte Zeit
             </p>
           </AnimatedSection>
         </div>
@@ -298,13 +333,13 @@ const Booking = () => {
                 >
                   <div className="text-center mb-8">
                     <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
-                      Ich suche Services für...
+                      Termin buchen für:
                     </h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {[
-                      { value: "men", icon: User, label: "Herren" },
-                      { value: "women", icon: Users, label: "Damen" },
+                      { value: "women", label: "Damen" },
+                      { value: "men", label: "Herren" },
                     ].map((option) => (
                       <motion.button
                         key={option.value}
@@ -312,86 +347,31 @@ const Booking = () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           setGender(option.value as "men" | "women");
+                          setSelectedStylist(null);
                           setSelectedService(null);
+                          setSelectedDate(null);
+                          setSelectedTime(null);
                           nextStep();
                         }}
-                        className={`p-8 rounded-2xl border-2 transition-all ${
+                        className={`relative overflow-hidden p-8 rounded-2xl border-2 transition-all ${
                           gender === option.value
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/50 bg-card'
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 bg-card"
                         }`}
                       >
-                        <div className="w-16 h-16 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
-                          <option.icon className="w-8 h-8 text-primary" />
-                        </div>
-                        <span className="font-serif text-xl font-semibold text-foreground">
-                          {option.label}
-                        </span>
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Step 2: Service Selection */}
-              {step === "service" && (
-                <motion.div
-                  key="service"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-8"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <Button variant="ghost" onClick={prevStep}>
-                      <ChevronLeft className="w-4 h-4 mr-2" />
-                      Zurück
-                    </Button>
-                    <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Leistung wählen
-                    </h2>
-                    <div className="w-20" />
-                  </div>
-                  <div className="space-y-4">
-                    {services.map((service) => (
-                      <motion.button
-                        key={service.id}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
-                        onClick={() => {
-                          setSelectedService(service.id);
-                          nextStep();
-                        }}
-                        className={`w-full p-6 rounded-xl border-2 transition-all flex items-center justify-between ${
-                          selectedService === service.id
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/50 bg-card'
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-                            {service.name.toLowerCase().includes('bart') ? (
-                              <Scissors className="w-6 h-6 text-primary" />
-                            ) : service.name.toLowerCase().includes('style') || service.name.toLowerCase().includes('wave') ? (
-                              <Sparkles className="w-6 h-6 text-primary" />
-                            ) : (
-                              <Scissors className="w-6 h-6 text-primary" />
-                            )}
-                          </div>
-                          <div className="text-left">
-                            <span className="font-semibold text-foreground block">
-                              {service.name}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {service.duration_minutes} Min.
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-primary font-semibold text-lg">
-                            {service.price}€
+                        <motion.div
+                          className="absolute inset-0 opacity-0"
+                          whileHover={{ opacity: 1 }}
+                          transition={{ duration: 0.25 }}
+                          style={{
+                            background:
+                              "radial-gradient(600px circle at 50% 0%, rgba(224,224,224,0.18), transparent 40%)",
+                          }}
+                        />
+                        <div className="relative z-10 text-center">
+                          <span className="font-serif text-2xl font-semibold text-foreground block">
+                            {option.label}
                           </span>
-                          <ChevronRight className="w-5 h-5 text-muted-foreground" />
                         </div>
                       </motion.button>
                     ))}
@@ -399,7 +379,7 @@ const Booking = () => {
                 </motion.div>
               )}
 
-              {/* Step 3: Stylist Selection */}
+              {/* Step 2: Stylist Selection */}
               {step === "stylist" && (
                 <motion.div
                   key="stylist"
@@ -408,45 +388,166 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  <div className="flex items-center justify-between mb-8">
-                    <Button variant="ghost" onClick={prevStep}>
-                      <ChevronLeft className="w-4 h-4 mr-2" />
-                      Zurück
-                    </Button>
-                    <h2 className="font-serif text-2xl font-semibold text-foreground">
-                      Stylisten wählen
+                  <div className="grid grid-cols-3 items-center mb-8">
+                    <div>
+                      <Button variant="ghost" onClick={prevStep}>
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Zurück
+                      </Button>
+                    </div>
+                    <h2 className="font-serif text-2xl font-semibold text-foreground text-center">
+                      Stylist auswählen
                     </h2>
-                    <div className="w-20" />
+                    <div />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {stylists.map((stylist) => (
-                      <motion.button
-                        key={stylist.id}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          setSelectedStylist(stylist.id);
-                          nextStep();
-                        }}
-                        className={`p-6 rounded-xl border-2 transition-all ${
-                          selectedStylist === stylist.id
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/50 bg-card'
-                        }`}
-                      >
-                        {stylist.image_url && (
-                          <img
-                            src={stylist.image_url}
-                            alt={stylist.name}
-                            className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-border"
-                          />
-                        )}
-                        <span className="font-semibold text-foreground block">
-                          {stylist.name}
-                        </span>
-                      </motion.button>
-                    ))}
+
+                  {stylists.length === 0 ? (
+                    <div className="rounded-2xl border border-border bg-card p-6 text-center">
+                      <p className="font-serif text-2xl font-semibold text-foreground mb-3">
+                        Keine Stylisten verfügbar
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Bitte versuchen Sie es später erneut oder wählen Sie eine andere Kategorie.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {stylists.map((stylist) => (
+                        <motion.button
+                          key={stylist.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setSelectedStylist(stylist.id);
+                            nextStep();
+                          }}
+                          className={`p-6 rounded-xl border-2 transition-all ${
+                            selectedStylist === stylist.id
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50 bg-card"
+                          }`}
+                        >
+                          {stylist.image_url && (
+                            <img
+                              src={stylist.image_url}
+                              alt={stylist.name}
+                              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-border"
+                            />
+                          )}
+                          <span className="font-semibold text-foreground block">{stylist.name}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Step 3: Service Selection */}
+              {step === "service" && (
+                <motion.div
+                  key="service"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="grid grid-cols-3 items-center mb-8">
+                    <div>
+                      <Button variant="ghost" onClick={prevStep}>
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Zurück
+                      </Button>
+                    </div>
+                    <h2 className="font-serif text-2xl font-semibold text-foreground text-center">
+                      Frisur auswählen
+                    </h2>
+                    <div />
                   </div>
+
+                  {services.length === 0 ? (
+                    <div className="rounded-2xl border border-border bg-card p-6 text-center">
+                      <p className="font-serif text-2xl font-semibold text-foreground mb-3">
+                        Termin buchen
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Für andere Leistungen direkt per WhatsApp.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button asChild variant="silver" size="lg">
+                          <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
+                             jetzt Termin mit WhatsApp buchen
+                          </a>
+                        </Button>
+                        <Button asChild variant="silverOutline" size="lg">
+                          <Link to="/leistungen">Unsere Leistungen</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-4">
+                        {services.map((service) => (
+                          <motion.button
+                            key={service.id}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                            onClick={() => {
+                              setSelectedService(service.id);
+                              nextStep();
+                            }}
+                            className={`w-full p-6 rounded-xl border-2 transition-all flex items-center justify-between ${
+                              selectedService === service.id
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:border-primary/50 bg-card"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+                                {service.name.toLowerCase().includes("bart") ? (
+                                  <Scissors className="w-6 h-6 text-primary" />
+                                ) : service.name.toLowerCase().includes("style") ||
+                                  service.name.toLowerCase().includes("wave") ? (
+                                  <Sparkles className="w-6 h-6 text-primary" />
+                                ) : (
+                                  <Scissors className="w-6 h-6 text-primary" />
+                                )}
+                              </div>
+                              <div className="text-left">
+                                <span className="font-semibold text-foreground block">{service.name}</span>
+                                <span className="text-sm text-muted-foreground">
+                                  {service.duration_minutes} Min.
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span className="text-primary font-semibold text-lg">{service.price && service.price !== 0 ? `${service.price}€` : ''}</span>
+                              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+                      {gender === "women" && (
+                        <div className="rounded-2xl border border-border bg-card p-6 text-center mt-6">
+                          <p className="font-serif text-2xl font-semibold text-foreground mb-3">
+                            Termin buchen
+                          </p>
+                          <p className="text-sm text-muted-foreground mb-6">
+                            Für andere Leistungen direkt per WhatsApp.
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button asChild variant="silver" size="lg">
+                              <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
+                                 jetzt Termin mit WhatsApp buchen
+                              </a>
+                            </Button>
+                            <Button asChild variant="silverOutline" size="lg">
+                              <Link to="/leistungen">Unsere Leistungen</Link>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </motion.div>
               )}
 
@@ -459,15 +560,17 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  <div className="flex items-center justify-between mb-8">
-                    <Button variant="ghost" onClick={prevStep}>
-                      <ChevronLeft className="w-4 h-4 mr-2" />
-                      Zurück
-                    </Button>
-                    <h2 className="font-serif text-2xl font-semibold text-foreground">
+                  <div className="grid grid-cols-3 items-center mb-8">
+                    <div>
+                      <Button variant="ghost" onClick={prevStep}>
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Zurück
+                      </Button>
+                    </div>
+                    <h2 className="font-serif text-2xl font-semibold text-foreground text-center">
                       Datum & Uhrzeit wählen
                     </h2>
-                    <div className="w-20" />
+                    <div />
                   </div>
 
                   {/* Date Selection */}
@@ -514,7 +617,7 @@ const Booking = () => {
                         <span className="font-medium text-foreground">Verfügbare Zeiten</span>
                       </div>
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                        {timeSlots.map((time) => {
+                        {(gender === "women" ? timeSlotsWomen : timeSlotsMen).map((time) => {
                           // Determine if this start time would overlap any busy slot
                           const [h, m] = time.split(":").map(Number);
                           const start = new Date(selectedDate);
@@ -597,15 +700,17 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  <div className="flex items-center justify-between mb-8">
-                    <Button variant="ghost" onClick={prevStep}>
-                      <ChevronLeft className="w-4 h-4 mr-2" />
-                      Zurück
-                    </Button>
-                    <h2 className="font-serif text-2xl font-semibold text-foreground">
+                  <div className="grid grid-cols-3 items-center mb-8">
+                    <div>
+                      <Button variant="ghost" onClick={prevStep}>
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Zurück
+                      </Button>
+                    </div>
+                    <h2 className="font-serif text-2xl font-semibold text-foreground text-center">
                       Ihre Daten
                     </h2>
-                    <div className="w-20" />
+                    <div />
                   </div>
 
                   {/* Booking Summary */}
@@ -628,7 +733,7 @@ const Booking = () => {
                       </div>
                       <div className="flex justify-between pt-3 border-t border-border">
                         <span className="font-semibold text-foreground">Gesamt</span>
-                        <span className="font-semibold text-primary">{currentService?.price}€</span>
+                        <span className="font-semibold text-primary">{currentService?.price && currentService?.price !== 0 ? `${currentService?.price}€` : ''}</span>
                       </div>
                     </div>
                   </div>

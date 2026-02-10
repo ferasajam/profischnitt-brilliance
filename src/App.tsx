@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 import Index from "./pages/Index";
 import Eroeffnungsangebote from "./pages/Eroeffnungsangebote";
@@ -24,6 +25,8 @@ import Review from "./pages/Review";
 import Cancel from "./pages/Cancel";
 import Profile from "./pages/Profile";
 import Leistungen from "./pages/Leistungen";
+import Datenschutz from "./pages/Datenschutz";
+import Impressum from "./pages/Impressum";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -57,10 +60,17 @@ const App = () => (
                   <Route path="loyalty" element={<Loyalty />} />
                 </Route>
                 <Route path="/review" element={<Review />} />
+                {/* Legal */}
+                <Route path="/datenschutz" element={<Datenschutz />} />
+                <Route path="/impressum" element={<Impressum />} />
+                {/* Backwards-compatible paths */}
+                <Route path="/privacy" element={<Datenschutz />} />
+                <Route path="/terms" element={<Impressum />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />
+            <CookieConsentBanner />
             {/* Floating WhatsApp Button */}
             <a
               href="https://wa.me/4915214414146"

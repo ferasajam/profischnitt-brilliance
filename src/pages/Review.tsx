@@ -7,6 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import type { PostgrestError } from "@supabase/supabase-js";
+
+const rpc = (supabase as unknown as {
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>
+  ) => Promise<{ data: unknown; error: PostgrestError | null }>;
+}).rpc;
 
 export default function Review() {
   const [params] = useSearchParams();
@@ -32,7 +40,7 @@ export default function Review() {
 
       // Preferred flow: token-based one-time link
       if (token) {
-        const { data, error } = await (supabase as any).rpc("get_review_context_by_token", {
+        const { data, error } = await rpc("get_review_context_by_token", {
           _token: token,
         });
 
@@ -45,7 +53,10 @@ export default function Review() {
           return;
         }
 
-        const ctx = Array.isArray(data) ? data[0] : data;
+        const ctx = (Array.isArray(data) ? data[0] : data) as
+          | { booking_id?: string | null; is_used?: boolean | null }
+          | null
+          | undefined;
         if (!ctx?.booking_id) {
           setLinkErrorMessage("Ungültiger oder abgelaufener Link.");
           setIsUsed(false);
@@ -88,7 +99,7 @@ export default function Review() {
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [token, bookingId]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +108,7 @@ export default function Review() {
 
     // Preferred flow: submit via one-time token RPC
     if (token) {
-      const { error } = await (supabase as any).rpc("submit_review_with_token", {
+      const { error } = await rpc("submit_review_with_token", {
         _token: token,
         _rating: rating,
         _comment: comment,
@@ -127,7 +138,7 @@ export default function Review() {
     });
 
     if (error) {
-      if ((error as any)?.code === "23505") {
+      if ((error as PostgrestError | null)?.code === "23505") {
         setIsUsed(true);
         setErrorMessage("Dieser Link wurde bereits verwendet.");
         return;

@@ -239,16 +239,21 @@ export default function Services() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Preis (€) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                    required
-                  />
+                  <Label htmlFor="price">Preis (€)</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.price === 0 ? '' : formData.price}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({
+                          ...formData,
+                          price: value === '' ? 0 : parseFloat(value)
+                        });
+                      }}
+                    />
                 </div>
               </div>
               <div className="space-y-2">

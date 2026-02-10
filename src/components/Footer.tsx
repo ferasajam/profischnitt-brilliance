@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Instagram, Music2, Phone, Mail, MapPin, Facebook } from "lucide-react";
+import { openCookieConsentBanner } from "@/lib/cookieConsent";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -107,8 +108,15 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Diva Haarstudio. Alle Rechte vorbehalten.</p>
             <div className="flex gap-6">
-              <Link to="/privacy" className="hover:text-primary">Datenschutz</Link>
-              <Link to="/terms" className="hover:text-primary">Impressum</Link>
+              <Link to="/datenschutz" className="hover:text-primary">Datenschutz</Link>
+              <Link to="/impressum" className="hover:text-primary">Impressum</Link>
+              <button
+                type="button"
+                onClick={openCookieConsentBanner}
+                className="hover:text-primary"
+              >
+                Cookies
+              </button>
             </div>
           </div>
         </div>

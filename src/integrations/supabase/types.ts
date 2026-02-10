@@ -80,6 +80,64 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          booking_id: string | null
+          comment: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          is_anonymous: boolean
+          rating: number
+          service_id: string | null
+          stylist_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          is_anonymous?: boolean
+          rating: number
+          service_id?: string | null
+          stylist_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          is_anonymous?: boolean
+          rating?: number
+          service_id?: string | null
+          stylist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
+            referencedRelation: "stylists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loyalty_points: {
         Row: {
           created_at: string
@@ -255,6 +313,8 @@ export type Database = {
           title: string | null
           specialty: string | null
           instagram_url: string | null
+          serves_women: boolean
+          serves_men: boolean
           updated_at: string
         }
         Insert: {
@@ -267,6 +327,8 @@ export type Database = {
           title?: string | null
           specialty?: string | null
           instagram_url?: string | null
+          serves_women?: boolean
+          serves_men?: boolean
           updated_at?: string
         }
         Update: {
@@ -279,6 +341,8 @@ export type Database = {
           title?: string | null
           specialty?: string | null
           instagram_url?: string | null
+          serves_women?: boolean
+          serves_men?: boolean
           updated_at?: string
         }
         Relationships: []

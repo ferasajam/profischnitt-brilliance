@@ -9,6 +9,13 @@ function parsePreis(preis) {
   return match ? parseInt(match[1], 10) : 0;
 }
 
+function formatPrice(value?: string) {
+  if (!value) return "—";
+  const normalized = String(value).replace(/\s+/g, " ").trim();
+  // Keep currency symbol attached to the number on mobile (no "10\n€")
+  return normalized.replace(/\s*€$/, "\u00A0€");
+}
+
 const herrenPreise = [
   { service: "Schneiden", preis: "21 €" },
   { service: "Maschine Schnitt", preis: "17 €" },
@@ -28,7 +35,7 @@ const damenPreise = [
   { leistung: "Schneiden", kurz: "28 €", mittel: "38 €", lang: "45 €" },
   { leistung: "Stylen", kurz: "25 €", mittel: "30 €", lang: "35 €" },
   { leistung: "Waschen, Schneiden, Föhnen", kurz: "44 €", mittel: "51 €", lang: "59 €" },
-  { leistung: "Mädchen Haarschnitt bis 10 Jahre", kurz: "ab 15 €" },
+  { leistung: "Mädchen Haarschnitt bis 10 Jahre", kurz: "15 €" },
   { leistung: "Ansatz Farbe 2cm(30ml+vol)", kurz: "ab 35 €" },
   { leistung: "Komplettfärben", kurz: "50 €", mittel: "60 €", lang: "ab 70 €" },
   { leistung: "KomplettTönung", kurz: "39 €", mittel: "49 €", lang: "ab 59 €" },
@@ -46,7 +53,7 @@ const damenPreise = [
   { leistung: "Pflege Maske mit Kopfmassage", kurz: "15 €" },
   { leistung: "Olaplex Pflege", kurz: "25 €" },
   { leistung: "Farbe / Haarkur", kurz: "30 €" },
-  { leistung: "Augen waschen", kurz: "5 €" },
+  { leistung: "waschen", kurz: "5 €" },
   { leistung: "Augenbrauen färben", kurz: "10 €" },
   { leistung: "Wimpern färben", kurz: "13 €" },
   { leistung: "Alltags-Make-up", kurz: "60 €" },
@@ -70,22 +77,28 @@ export default function Leistungen() {
             Ihr Damenfriseur für natürliche und ausdrucksstarke Ergebnisse.
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-card rounded-xl border border-border">
+            <table className="w-full bg-card rounded-xl border border-border text-sm md:text-base">
               <thead>
                 <tr className="bg-secondary/50">
                   <th className="py-3 px-4 text-left">Leistung</th>
-                  <th className="py-3 px-4 text-left">Kurz</th>
-                  <th className="py-3 px-4 text-left">Mittel</th>
-                  <th className="py-3 px-4 text-left">Lang</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">Kurz</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">Mittel</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">Lang</th>
                 </tr>
               </thead>
               <tbody>
                 {damenPreise.map((item) => (
                   <tr key={item.leistung} className="border-b border-border last:border-0">
                     <td className="py-2 px-4 text-foreground">{item.leistung}</td>
-                    <td className="py-2 px-4 text-primary font-semibold">{item.kurz}</td>
-                    <td className="py-2 px-4 text-primary font-semibold">{item.mittel}</td>
-                    <td className="py-2 px-4 text-primary font-semibold">{item.lang}</td>
+                    <td className="py-2 px-4 text-right text-primary font-semibold">
+                      <span className="whitespace-nowrap tabular-nums">{formatPrice(item.kurz)}</span>
+                    </td>
+                    <td className="py-2 px-4 text-right text-primary font-semibold">
+                      <span className="whitespace-nowrap tabular-nums">{formatPrice(item.mittel)}</span>
+                    </td>
+                    <td className="py-2 px-4 text-right text-primary font-semibold">
+                      <span className="whitespace-nowrap tabular-nums">{formatPrice(item.lang)}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -103,18 +116,20 @@ export default function Leistungen() {
             Ihr Herrenfriseur & Barbier für ein gepflegtes und selbstbewusstes Auftreten.
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-card rounded-xl border border-border">
+            <table className="w-full bg-card rounded-xl border border-border text-sm md:text-base">
               <thead>
                 <tr className="bg-secondary/50">
                   <th className="py-3 px-4 text-left">Service</th>
-                  <th className="py-3 px-4 text-left">Preis</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">Preis</th>
                 </tr>
               </thead>
               <tbody>
                 {herrenPreise.map((item) => (
                   <tr key={item.service} className="border-b border-border last:border-0">
                     <td className="py-2 px-4 text-foreground">{item.service}</td>
-                    <td className="py-2 px-4 text-primary font-semibold">{item.preis}</td>
+                    <td className="py-2 px-4 text-right text-primary font-semibold">
+                      <span className="whitespace-nowrap tabular-nums">{formatPrice(item.preis)}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
