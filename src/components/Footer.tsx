@@ -107,6 +107,18 @@ export const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Diva Haarstudio. Alle Rechte vorbehalten.</p>
+            <p className="text-xs text-muted-foreground mt-2 md:mt-0">
+              Webseite professionell entwickelt von{' '}
+              <a
+                href="https://quality-1st.de/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                Quality1st
+              </a>
+              .
+            </p>
             <div className="flex gap-6">
               <Link to="/datenschutz" className="hover:text-primary">Datenschutz</Link>
               <Link to="/impressum" className="hover:text-primary">Impressum</Link>

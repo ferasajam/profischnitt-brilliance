@@ -12,6 +12,8 @@ const navLinks = [
   { href: "/leistungen", label: "Leistungen" },
   { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
   { href: "/team", label: "Team" },
+  { href: "/auth?tab=contact", label: "Anmelden", authOnly: false },
+    { href: "/auth?tab=register", label: "Registrieren", authOnly: false },
 ];
 
 export const Navigation = () => {
@@ -108,28 +110,34 @@ export const Navigation = () => {
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link key={link.href} to={link.href} className="relative group">
-              <span
-                className={`text-sm font-medium transition-colors ${
-                  location.pathname === link.href
-                    ? "text-primary"
-                    : "text-foreground/70 hover:text-foreground"
-                }`}
-              >
-                {link.label}
-              </span>
-              <motion.span
-                className="absolute -bottom-1 left-0 h-px bg-primary"
-                initial={{ width: 0 }}
-                animate={{
-                  width: location.pathname === link.href ? "100%" : 0,
-                }}
-                whileHover={{ width: "100%" }}
-                transition={{ duration: 0.3 }}
-              />
-            </Link>
-          ))}
+          {navLinks
+            .filter((link) => {
+              // Zeige Anmelden/Registrieren nur, wenn kein User eingeloggt ist
+              if ((link.href.startsWith("/auth")) && user) return false;
+              return true;
+            })
+            .map((link) => (
+              <Link key={link.href} to={link.href} className="relative group">
+                <span
+                  className={`text-sm font-medium transition-colors ${
+                    location.pathname === link.href
+                      ? "text-primary"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  {link.label}
+                </span>
+                <motion.span
+                  className="absolute -bottom-1 left-0 h-px bg-primary"
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: location.pathname === link.href ? "100%" : 0,
+                  }}
+                  whileHover={{ width: "100%" }}
+                  transition={{ duration: 0.3 }}
+                />
+              </Link>
+            ))}
           {user && isAdmin && (
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="flex-1 max-w-[120px]">
               <Button
@@ -147,16 +155,6 @@ export const Navigation = () => {
                 </Link>
               </Button>
             </motion.div>
-          )}
-          {!user && (
-            <>
-              <Link to="/auth?tab=register" className="relative group">
-                <span className="text-sm font-medium transition-colors text-foreground/70 hover:text-foreground">Registrieren</span>
-              </Link>
-              <Link to="/auth?tab=contact" className="relative group">
-                <span className="text-sm font-medium transition-colors text-foreground/70 hover:text-foreground">Anmelden</span>
-              </Link>
-            </>
           )}
           {user && (
             <Link to="/profile">
@@ -200,20 +198,25 @@ export const Navigation = () => {
             className="md:hidden bg-background border-b border-border"
           >
             <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`text-lg font-medium ${
-                    location.pathname === link.href
-                      ? "text-primary"
-                      : "text-foreground/70"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks
+                .filter((link) => {
+                  if ((link.href.startsWith("/auth")) && user) return false;
+                  return true;
+                })
+                .map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`text-lg font-medium ${
+                      location.pathname === link.href
+                        ? "text-primary"
+                        : "text-foreground/70"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               {user && isAdmin && (
                 <Link
                   to="/admin"
