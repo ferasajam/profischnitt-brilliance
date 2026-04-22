@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,9 +23,29 @@ interface Booking {
   end_time: string;
   status: string;
   notes: string | null;
+  feedback_token?: string | null;
+  stylist_id?: string | null;
+  service_id?: string | null;
   stylist: { name: string } | null;
   service: { name: string; price: number } | null;
 }
+
+type AppSettingsClient = {
+  from: (table: 'app_settings') => {
+    select: (columns: string) => {
+      eq: (column: string, value: string) => {
+        maybeSingle: () => Promise<{
+          data: { value: string } | null;
+          error: { message?: string } | null;
+        }>;
+      };
+    };
+    upsert: (
+      values: { key: string; value: string },
+      options: { onConflict: string }
+    ) => Promise<{ error: { message?: string } | null }>;
+  };
+};
 
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -33,9 +53,24 @@ export default function Bookings() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
+  const [whatsAppRecipients, setWhatsAppRecipients] = useState('');
+  const [isSavingWhatsAppRecipients, setIsSavingWhatsAppRecipients] = useState(false);
   const { toast } = useToast();
+  const appSettingsClient = supabase as unknown as AppSettingsClient;
 
-  const fetchBookings = async () => {
+  const fetchWhatsAppRecipients = useCallback(async () => {
+    const { data, error } = await appSettingsClient
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'booking_whatsapp_recipients')
+      .maybeSingle();
+
+    if (!error) {
+      setWhatsAppRecipients(data?.value || '');
+    }
+  }, [appSettingsClient]);
+
+  const fetchBookings = useCallback(async () => {
     let query = supabase
       .from('bookings')
       .select(`
@@ -66,11 +101,43 @@ export default function Bookings() {
       setBookings(data || []);
     }
     setIsLoading(false);
-  };
+  }, [dateFilter, statusFilter, toast]);
 
   useEffect(() => {
-    fetchBookings();
-  }, [statusFilter, dateFilter]);
+    void fetchBookings();
+  }, [fetchBookings]);
+
+  useEffect(() => {
+    void fetchWhatsAppRecipients();
+  }, [fetchWhatsAppRecipients]);
+
+  const saveWhatsAppRecipients = async () => {
+    setIsSavingWhatsAppRecipients(true);
+
+    const { error } = await appSettingsClient.from('app_settings').upsert(
+      {
+        key: 'booking_whatsapp_recipients',
+        value: whatsAppRecipients.trim(),
+      },
+      { onConflict: 'key' }
+    );
+
+    setIsSavingWhatsAppRecipients(false);
+
+    if (error) {
+      toast({
+        title: 'Fehler',
+        description: 'WhatsApp-Verteiler konnte nicht gespeichert werden.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Erfolg',
+      description: 'WhatsApp-Verteiler wurde gespeichert.',
+    });
+  };
 
   const updateBookingStatus = async (id: string, status: string) => {
     const { error } = await supabase
@@ -94,10 +161,10 @@ export default function Bookings() {
           // Send feedback request email
           const booking = bookings.find(b => b.id === id);
           if (booking) {
-            const feedbackToken = (booking as any).feedback_token;
+            const feedbackToken = booking.feedback_token;
             const reviewLink = feedbackToken
               ? `${window.location.origin}/review?token=${feedbackToken}`
-              : `${window.location.origin}/review?bookingId=${id}&stylistId=${(booking as any).stylist_id ?? ''}&serviceId=${(booking as any).service_id ?? ''}`;
+              : `${window.location.origin}/review?bookingId=${id}&stylistId=${booking.stylist_id ?? ''}&serviceId=${booking.service_id ?? ''}`;
             await supabase.functions.invoke('send-feedback', {
               body: {
                 to: booking.customer_email,
@@ -108,7 +175,9 @@ export default function Bookings() {
             });
           }
         }
-      } catch {}
+      } catch (error) {
+        console.error('send-feedback failed', error);
+      }
       fetchBookings();
     }
   };
@@ -152,6 +221,29 @@ export default function Bookings() {
         <h1 className="text-3xl font-serif text-foreground">Buchungen</h1>
         <p className="text-muted-foreground">Verwalten Sie alle Terminbuchungen</p>
       </div>
+
+      <Card className="border-border/50">
+        <CardHeader>
+          <CardTitle>WhatsApp-Verteiler</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              value={whatsAppRecipients}
+              onChange={(e) => setWhatsAppRecipients(e.target.value)}
+              placeholder="+4915212345678, +491701234567"
+            />
+            <p className="text-sm text-muted-foreground">
+              Kommagetrennte WhatsApp-Nummern im internationalen Format. Bei jeder neuen Buchung wird zusätzlich die beim Stylisten hinterlegte WhatsApp-Nummer benachrichtigt.
+            </p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={saveWhatsAppRecipients} disabled={isSavingWhatsAppRecipients}>
+              {isSavingWhatsAppRecipients ? 'Speichert...' : 'Verteiler speichern'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-border/50">
         <CardHeader>

@@ -11,7 +11,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Seo } from "@/components/Seo";
 
 import Index from "./pages/Index";
-import Eroeffnungsangebote from "./pages/Eroeffnungsangebote";
+// import Eroeffnungsangebote from "./pages/Eroeffnungsangebote";
 import Team from "./pages/Team";
 import Booking from "./pages/Booking";
 import Auth from "./pages/Auth";
@@ -51,7 +51,7 @@ const App = () => (
                   <Route path="/team" element={<Team />} />
                   <Route path="/booking" element={<Booking />} />
                   <Route path="/leistungen" element={<Leistungen />} />
-                  <Route path="/eroeffnungsangebote" element={<Eroeffnungsangebote />} />
+                  {/* <Route path="/eroeffnungsangebote" element={<Eroeffnungsangebote />} /> */}
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/cancel" element={<Cancel />} />

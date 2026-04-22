@@ -21,10 +21,15 @@ interface Stylist {
   bio: string | null;
   image_url: string | null;
   instagram_url: string | null;
+  whatsapp_phone: string | null;
   is_active: boolean;
   serves_women: boolean;
   serves_men: boolean;
 }
+
+type StylistRow = Omit<Stylist, 'whatsapp_phone'> & {
+  whatsapp_phone?: string | null;
+};
 
 interface Service {
   id: string;
@@ -44,6 +49,7 @@ export default function Stylists() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStylist, setEditingStylist] = useState<Stylist | null>(null);
+  const [hasWhatsAppPhoneColumn, setHasWhatsAppPhoneColumn] = useState(true);
   const [servicesDialogOpen, setServicesDialogOpen] = useState(false);
   const [assignStylist, setAssignStylist] = useState<Stylist | null>(null);
   const [allServices, setAllServices] = useState<Service[]>([]);
@@ -55,16 +61,30 @@ export default function Stylists() {
     bio: '',
     image_url: '',
     instagram_url: '',
+    whatsapp_phone: '',
     is_active: true,
     serves_women: true,
     serves_men: true,
   });
   const { toast } = useToast();
 
+  const isMissingWhatsAppPhoneColumn = (error: { code?: string; message?: string } | null) => (
+    error?.code === '42703' || error?.message?.includes('whatsapp_phone')
+  );
+
+  const buildStylistPayload = () => {
+    if (hasWhatsAppPhoneColumn) {
+      return formData;
+    }
+
+    const { whatsapp_phone: _unused, ...payloadWithoutWhatsApp } = formData;
+    return payloadWithoutWhatsApp;
+  };
+
   const fetchStylists = useCallback(async () => {
     const { data, error } = await supabase
       .from('stylists')
-      .select('id, name, title, specialty, bio, image_url, instagram_url, is_active, serves_women, serves_men')
+      .select('*')
       .order('name');
 
     if (error) {
@@ -74,7 +94,14 @@ export default function Stylists() {
         variant: 'destructive',
       });
     } else {
-      setStylists(data || []);
+      const rows = (data || []) as StylistRow[];
+      const hasWhatsAppField = rows.some((stylist) => Object.prototype.hasOwnProperty.call(stylist, 'whatsapp_phone'));
+
+      setHasWhatsAppPhoneColumn(hasWhatsAppField);
+      setStylists(rows.map((stylist) => ({
+        ...stylist,
+        whatsapp_phone: stylist.whatsapp_phone ?? null,
+      })));
     }
     setIsLoading(false);
   }, [toast]);
@@ -206,12 +233,35 @@ export default function Stylists() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = buildStylistPayload();
+
+    const persistWithoutWhatsAppFallback = async (mode: 'insert' | 'update') => {
+      if (editingStylist && mode === 'update') {
+        return await supabase
+          .from('stylists')
+          .update(payload)
+          .eq('id', editingStylist.id);
+      }
+
+      return await supabase
+        .from('stylists')
+        .insert(payload);
+    };
     
     if (editingStylist) {
-      const { error } = await supabase
+      let { error } = await supabase
         .from('stylists')
-        .update(formData)
+        .update(payload)
         .eq('id', editingStylist.id);
+
+      if (error && isMissingWhatsAppPhoneColumn(error) && hasWhatsAppPhoneColumn) {
+        setHasWhatsAppPhoneColumn(false);
+        const { error: fallbackError } = await supabase
+          .from('stylists')
+          .update(buildStylistPayload())
+          .eq('id', editingStylist.id);
+        error = fallbackError;
+      }
 
       if (error) {
         toast({
@@ -226,9 +276,15 @@ export default function Stylists() {
         });
       }
     } else {
-      const { error } = await supabase
-        .from('stylists')
-        .insert(formData);
+      let { error } = await persistWithoutWhatsAppFallback('insert');
+
+      if (error && isMissingWhatsAppPhoneColumn(error) && hasWhatsAppPhoneColumn) {
+        setHasWhatsAppPhoneColumn(false);
+        const { error: fallbackError } = await supabase
+          .from('stylists')
+          .insert(buildStylistPayload());
+        error = fallbackError;
+      }
 
       if (error) {
         toast({
@@ -258,6 +314,7 @@ export default function Stylists() {
       bio: stylist.bio || '',
       image_url: stylist.image_url || '',
       instagram_url: stylist.instagram_url || '',
+      whatsapp_phone: stylist.whatsapp_phone || '',
       is_active: stylist.is_active,
       serves_women: stylist.serves_women,
       serves_men: stylist.serves_men,
@@ -331,6 +388,7 @@ export default function Stylists() {
       bio: '',
       image_url: '',
       instagram_url: '',
+      whatsapp_phone: '',
       is_active: true,
       serves_women: true,
       serves_men: true,
@@ -431,6 +489,17 @@ export default function Stylists() {
                   placeholder="https://instagram.com/username oder @username"
                 />
               </div>
+              {hasWhatsAppPhoneColumn && (
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp_phone">WhatsApp-Nummer (optional)</Label>
+                  <Input
+                    id="whatsapp_phone"
+                    value={formData.whatsapp_phone}
+                    onChange={(e) => setFormData({ ...formData, whatsapp_phone: e.target.value })}
+                    placeholder="+4915212345678"
+                  />
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_active"
@@ -506,6 +575,9 @@ export default function Stylists() {
                           <p className="font-medium">{stylist.name}</p>
                           {stylist.bio && (
                             <p className="text-sm text-muted-foreground line-clamp-1">{stylist.bio}</p>
+                          )}
+                          {hasWhatsAppPhoneColumn && stylist.whatsapp_phone && (
+                            <p className="text-xs text-muted-foreground">WhatsApp: {stylist.whatsapp_phone}</p>
                           )}
                         </div>
                       </div>

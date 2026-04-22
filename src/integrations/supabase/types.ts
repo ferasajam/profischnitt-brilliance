@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -308,42 +326,45 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          instagram_url: string | null
           is_active: boolean
           name: string
-          title: string | null
           specialty: string | null
-          instagram_url: string | null
+          title: string | null
           serves_women: boolean
           serves_men: boolean
           updated_at: string
+          whatsapp_phone: string | null
         }
         Insert: {
           bio?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_active?: boolean
           name: string
-          title?: string | null
           specialty?: string | null
-          instagram_url?: string | null
+          title?: string | null
           serves_women?: boolean
           serves_men?: boolean
           updated_at?: string
+          whatsapp_phone?: string | null
         }
         Update: {
           bio?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_active?: boolean
           name?: string
-          title?: string | null
           specialty?: string | null
-          instagram_url?: string | null
+          title?: string | null
           serves_women?: boolean
           serves_men?: boolean
           updated_at?: string
+          whatsapp_phone?: string | null
         }
         Relationships: []
       }

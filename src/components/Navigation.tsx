@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const navLinks = [
   { href: "/", label: "Startseite" },
   { href: "/leistungen", label: "Leistungen" },
-  { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
+  // { href: "/eroeffnungsangebote", label: "Eröffnungsangebote" },
   { href: "/team", label: "Team" },
   { href: "/auth?tab=contact", label: "Anmelden", authOnly: false },
     { href: "/auth?tab=register", label: "Registrieren", authOnly: false },

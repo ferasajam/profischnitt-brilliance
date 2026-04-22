@@ -179,7 +179,12 @@ const Booking = () => {
         };
       };
       rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }>;
-      functions: { invoke: (fn: string, opts: { body: unknown }) => Promise<unknown> };
+      functions: {
+        invoke: (fn: string, opts: { body: unknown }) => Promise<{
+          data?: unknown;
+          error?: { message?: string } | null;
+        }>;
+      };
     };
 
     const { data, error } = await untyped
@@ -236,8 +241,17 @@ const Booking = () => {
             cancelLink,
           },
         });
+        const whatsappResult = await untyped.functions.invoke("send-booking-whatsapp", {
+          body: {
+            bookingId: data.id,
+          },
+        });
+
+        if (whatsappResult.error) {
+          alert("Der Termin wurde gespeichert, aber die WhatsApp-Benachrichtigung konnte nicht gesendet werden.");
+        }
       } catch (err) {
-        void err;
+        console.error("Booking follow-up failed", err);
       }
       nextStep();
     }

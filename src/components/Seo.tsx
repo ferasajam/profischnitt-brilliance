@@ -44,7 +44,7 @@ function getRouteSeo(pathname: string): RouteSeo {
         description:
           "Lernen Sie unser Team kennen: erfahrene Stylisten für Damen und Herren – Diva Haarstudio in Münster.",
       };
-    case "/eroeffnungsangebote":
+    // case "/eroeffnungsangebote":
       return {
         title: "Eröffnungsangebote | Diva Haarstudio Münster",
         description:
