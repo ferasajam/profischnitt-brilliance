@@ -489,7 +489,7 @@ const Booking = () => {
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button asChild variant="silver" size="lg">
                           <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
-                             jetzt Termin mit WhatsApp buchen
+                             jetzt Termin per WhatsApp buchen
                           </a>
                         </Button>
                         <Button asChild variant="silverOutline" size="lg">
@@ -551,7 +551,7 @@ const Booking = () => {
                           <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Button asChild variant="silver" size="lg">
                               <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
-                                 jetzt Termin mit WhatsApp buchen
+                                 jetzt Termin per WhatsApp buchen
                               </a>
                             </Button>
                             <Button asChild variant="silverOutline" size="lg">
