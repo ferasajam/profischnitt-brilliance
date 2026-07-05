@@ -540,26 +540,24 @@ const Booking = () => {
                           </motion.button>
                         ))}
                       </div>
-                      {gender === "women" && (
-                        <div className="rounded-2xl border border-border bg-card p-6 text-center mt-6">
-                          <p className="font-serif text-2xl font-semibold text-foreground mb-3">
-                            Termin buchen
-                          </p>
-                          <p className="text-sm text-muted-foreground mb-6">
-                            Für andere Leistungen direkt per WhatsApp.
-                          </p>
-                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Button asChild variant="silver" size="lg">
-                              <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
-                                 jetzt Termin per WhatsApp buchen
-                              </a>
-                            </Button>
-                            <Button asChild variant="silverOutline" size="lg">
-                              <Link to="/leistungen">Unsere Leistungen</Link>
-                            </Button>
-                          </div>
+                      <div className="rounded-2xl border border-border bg-card p-6 text-center mt-6">
+                        <p className="font-serif text-2xl font-semibold text-foreground mb-3">
+                          Termin buchen
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Für andere Leistungen direkt per WhatsApp.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                          <Button asChild variant="silver" size="lg">
+                            <a href="https://wa.me/4915214414146" target="_blank" rel="noopener noreferrer">
+                               jetzt Termin per WhatsApp buchen
+                            </a>
+                          </Button>
+                          <Button asChild variant="silverOutline" size="lg">
+                            <Link to="/leistungen">Unsere Leistungen</Link>
+                          </Button>
                         </div>
-                      )}
+                      </div>
                     </>
                   )}
                 </motion.div>

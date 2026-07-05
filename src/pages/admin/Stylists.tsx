@@ -27,10 +27,6 @@ interface Stylist {
   serves_men: boolean;
 }
 
-type StylistRow = Omit<Stylist, 'whatsapp_phone'> & {
-  whatsapp_phone?: string | null;
-};
-
 interface Service {
   id: string;
   name: string;
@@ -82,10 +78,35 @@ export default function Stylists() {
   };
 
   const fetchStylists = useCallback(async () => {
-    const { data, error } = await supabase
+    const baseQuery = supabase
       .from('stylists')
-      .select('*')
       .order('name');
+
+    const { data, error } = await baseQuery
+      .select('id, name, title, specialty, bio, image_url, instagram_url, whatsapp_phone, is_active, serves_women, serves_men');
+
+    if (error && isMissingWhatsAppPhoneColumn(error)) {
+      const fallbackResult = await baseQuery
+        .select('id, name, title, specialty, bio, image_url, instagram_url, is_active, serves_women, serves_men');
+
+      if (fallbackResult.error) {
+        toast({
+          title: 'Fehler',
+          description: 'Stylisten konnten nicht geladen werden.',
+          variant: 'destructive',
+        });
+      } else {
+        setHasWhatsAppPhoneColumn(false);
+        setStylists((fallbackResult.data || []).map((stylist) => ({ ...stylist, whatsapp_phone: null })));
+        toast({
+          title: 'Hinweis',
+          description: 'Die Spalte whatsapp_phone fehlt noch in der Datenbank. Die Seite läuft vorübergehend ohne WhatsApp-Feld.',
+        });
+      }
+
+      setIsLoading(false);
+      return;
+    }
 
     if (error) {
       toast({
@@ -94,14 +115,8 @@ export default function Stylists() {
         variant: 'destructive',
       });
     } else {
-      const rows = (data || []) as StylistRow[];
-      const hasWhatsAppField = rows.some((stylist) => Object.prototype.hasOwnProperty.call(stylist, 'whatsapp_phone'));
-
-      setHasWhatsAppPhoneColumn(hasWhatsAppField);
-      setStylists(rows.map((stylist) => ({
-        ...stylist,
-        whatsapp_phone: stylist.whatsapp_phone ?? null,
-      })));
+      setHasWhatsAppPhoneColumn(true);
+      setStylists(data || []);
     }
     setIsLoading(false);
   }, [toast]);
@@ -234,34 +249,12 @@ export default function Stylists() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = buildStylistPayload();
-
-    const persistWithoutWhatsAppFallback = async (mode: 'insert' | 'update') => {
-      if (editingStylist && mode === 'update') {
-        return await supabase
-          .from('stylists')
-          .update(payload)
-          .eq('id', editingStylist.id);
-      }
-
-      return await supabase
-        .from('stylists')
-        .insert(payload);
-    };
     
     if (editingStylist) {
-      let { error } = await supabase
+      const { error } = await supabase
         .from('stylists')
         .update(payload)
         .eq('id', editingStylist.id);
-
-      if (error && isMissingWhatsAppPhoneColumn(error) && hasWhatsAppPhoneColumn) {
-        setHasWhatsAppPhoneColumn(false);
-        const { error: fallbackError } = await supabase
-          .from('stylists')
-          .update(buildStylistPayload())
-          .eq('id', editingStylist.id);
-        error = fallbackError;
-      }
 
       if (error) {
         toast({
@@ -276,15 +269,9 @@ export default function Stylists() {
         });
       }
     } else {
-      let { error } = await persistWithoutWhatsAppFallback('insert');
-
-      if (error && isMissingWhatsAppPhoneColumn(error) && hasWhatsAppPhoneColumn) {
-        setHasWhatsAppPhoneColumn(false);
-        const { error: fallbackError } = await supabase
-          .from('stylists')
-          .insert(buildStylistPayload());
-        error = fallbackError;
-      }
+      const { error } = await supabase
+        .from('stylists')
+        .insert(payload);
 
       if (error) {
         toast({
