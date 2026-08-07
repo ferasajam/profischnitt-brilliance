@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import herrenhaarschnittImg from "@/assets/Herrenhaarschnitt.png";
 import damenhaarschnittImg from "@/assets/Damenhaarschnitt.png";
-import bartpflegeImg from "@/assets/Bartpflege.png";
+import bartpflegeImg from "@/assets/bartpflege.png";
 import wavesImg from "@/assets/waves.png";
 import { Button } from "@/components/ui/button";
 import { AnimatedSection } from "@/components/AnimatedSection";
